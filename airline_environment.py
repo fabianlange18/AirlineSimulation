@@ -1,10 +1,10 @@
 import numpy as np
 
-import gymnasium as gym
+import gym
 from typing import Any, SupportsFloat
 
 class AirlineEnvironment(gym.Env):
-    
+
 
     def __init__(self) -> None:
 
@@ -29,7 +29,7 @@ class AirlineEnvironment(gym.Env):
         self.n_flights = 1
         
         self.demand = np.array(
-            [[0, 1000, 150, 600, 130, 120],
+            [[0, 1000000, 1000000, 1000000, 1000000, 1000000],
             [0, 0, 0, 0, 0, 0],
             [0, 0, 0, 0, 0, 0],
             [0, 0, 0, 0, 0, 0],
@@ -37,21 +37,29 @@ class AirlineEnvironment(gym.Env):
             [0, 0, 0, 0, 0, 0]]
         )
 
-        self.observation_space = gym.spaces.Discrete(self.n_flights)
-        self.action_space = gym.spaces.MultiDiscrete([len(self.airports), self.max_price])
+        self.state = 0
+        self.max_state = 6
 
-        self.state = 1
+        self.observation_space = gym.spaces.discrete.Discrete(self.max_state)
+        self.action_space = gym.spaces.box.Box(low=0.0, high=self.max_price, shape=(1,))
+
 
     def step(self, action: Any):
-        demand = self.demand[0][action[0]]
+        demand = self.demand[0][self.state]
         reward = 0
-        if self.customer_behavior(action[1]):
-            self.demand[0][action[0]] = min(0, demand - self.flight_capacity)
-            reward += min(demand, self.flight_capacity) * action[1]
-        else:
-            print("Price too high")
-        return self.state, reward, False, {}
-    
+        if self.customer_behavior(action[0]):
+            reward += min(demand, self.flight_capacity) * action[0]
+            # self.demand[0][self.state] = max(0, demand - self.flight_capacity)
+        # else:
+            # print("Price too high")
+        self.state += 1
+        return self.state, reward, self.state == self.max_state , {}
 
-    def customer_behavior(price):
+
+    def customer_behavior(self, price):
         return price < 500
+
+
+    def reset(self):
+        self.state = 0
+        return self.state
