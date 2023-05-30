@@ -1,65 +1,55 @@
-import numpy as np
-
 import gym
-from typing import Any, SupportsFloat
+from gym.spaces.multi_discrete import MultiDiscrete
+from gym.spaces.box import Box
+
+import numpy as np
 
 class AirlineEnvironment(gym.Env):
 
 
     def __init__(self) -> None:
 
-        self.airport_names = ['BER', 'JFK', 'GIG', 'HND', 'CPT', 'SYD']
-        self.airports = np.arange(len(self.airport_names))
+        # Initial State
+        # self.timestep = 0
+        # self.booked_seats = 0
 
-        self.airport_distances = np.array(
-            [[0, 5000, 8000, 15000, 6000, 20000],
-            [0, 0, 0, 0, 0, 0],
-            [0, 0, 0, 0, 0, 0],
-            [0, 0, 0, 0, 0, 0],
-            [0, 0, 0, 0, 0, 0],
-            [0, 0, 0, 0, 0, 0]]
-        )
+        # Observation Space
+        self.booking_time = 50
+        self.flight_capacity = 500
+        self.observation_space = MultiDiscrete([self.booking_time, self.flight_capacity])
 
-        self.var_flight_costs = 1
-        # Fix cost do not change this much: self.fix_flight_costs = 1000
+        # Action Space
+        self.max_price = 2000
+        self.action_space = Box(low = 0, high = self.max_price, shape = (1,))
 
-        self.max_price = 1000
-        self.flight_capacity = 200
-
-        self.n_flights = 1
-        
-        self.demand = np.array(
-            [[0, 1000000, 1000000, 1000000, 1000000, 1000000],
-            [0, 0, 0, 0, 0, 0],
-            [0, 0, 0, 0, 0, 0],
-            [0, 0, 0, 0, 0, 0],
-            [0, 0, 0, 0, 0, 0],
-            [0, 0, 0, 0, 0, 0]]
-        )
-
-        self.state = 0
-        self.max_state = 6
-
-        self.observation_space = gym.spaces.discrete.Discrete(self.max_state)
-        self.action_space = gym.spaces.box.Box(low=0.0, high=self.max_price, shape=(1,))
+        self.customers_per_round = 10
 
 
-    def step(self, action: Any):
-        demand = self.demand[0][self.state]
-        reward = 0
-        if self.customer_behavior(action[0]):
-            reward += min(demand, self.flight_capacity) * action[0]
-            # self.demand[0][self.state] = max(0, demand - self.flight_capacity)
-        # else:
-            # print("Price too high")
-        self.state += 1
-        return self.state, reward, self.state == self.max_state , {}
+    def step(self, action):
+
+        # time_until_takeoff = self.booking_time - self.timestep % self.booking_time
+        price = action[0]
+        empty_seats = self.flight_capacity - self.state[1] - 1
+
+        buying_customers = self.simulate_customers(price, self.state[0])
+
+        buying_customers = min(empty_seats, buying_customers)
+
+        reward = buying_customers * price
+
+        self.state[0] += 1
+        self.state[1] += buying_customers
+
+        return self.state, reward, self.state[0] == self.booking_time , {}
 
 
-    def customer_behavior(self, price):
-        return price < 500
+    def simulate_customers(self, price, timestep):
+        p = (1 - price / self.max_price) * (1 + timestep) / self.booking_time
+        probability_distribution = [p, 1-p]
+        buying_customers, _ = np.random.multinomial(self.customers_per_round, probability_distribution)
+        return buying_customers
 
 
     def reset(self):
-        self.state = 0
+        self.state = [0, 0]
         return self.state
