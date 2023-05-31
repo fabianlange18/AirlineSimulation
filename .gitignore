@@ -1,2 +1,9 @@
 *.pyc
 __pycache__
+
+wandb/
+logs/
+
+.DS_Store
+
+dp_optimal_solution/

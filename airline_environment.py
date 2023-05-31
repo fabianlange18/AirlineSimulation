@@ -2,7 +2,10 @@ import gym
 from gym.spaces.multi_discrete import MultiDiscrete
 from gym.spaces.box import Box
 
+import wandb
+
 import numpy as np
+from scipy.stats import multinomial
 
 class AirlineEnvironment(gym.Env):
 
@@ -22,7 +25,9 @@ class AirlineEnvironment(gym.Env):
         self.max_price = 2000
         self.action_space = Box(low = 0, high = self.max_price, shape = (1,))
 
-        self.customers_per_round = 10
+        self.customers_per_round = 25
+
+        self.stochastic = False
 
 
     def step(self, action):
@@ -40,13 +45,23 @@ class AirlineEnvironment(gym.Env):
         self.state[0] += 1
         self.state[1] += buying_customers
 
+        wandb.log({
+            'price' : price,
+            'empty_seats' : empty_seats,
+            'buying_customers' : buying_customers,
+            'profit' : reward
+        })
+
         return self.state, reward, self.state[0] == self.booking_time , {}
 
 
     def simulate_customers(self, price, timestep):
         p = (1 - price / self.max_price) * (1 + timestep) / self.booking_time
         probability_distribution = [p, 1-p]
-        buying_customers, _ = np.random.multinomial(self.customers_per_round, probability_distribution)
+        if self.stochastic:
+            buying_customers = np.multiply(probability_distribution, self.customers_per_round)
+        else:
+            buying_customers, _ = np.random.multinomial(self.customers_per_round, probability_distribution)
         return buying_customers
 
 
