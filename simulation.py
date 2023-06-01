@@ -7,7 +7,7 @@ def simulation_run(model):
     env = AirlineEnvironment()
 
     env.reset()
-    state = env.state
+    state = env.s
 
     price_trajectory = []
     state_trajectory = []

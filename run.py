@@ -7,14 +7,20 @@ import wandb
 
 env = AirlineEnvironment()
 
-model = PPO('MlpPolicy', env, gamma=0.99999, tensorboard_log='./logs')
+# model = PPO('MlpPolicy', env, gamma=0.99999, tensorboard_log='./logs')
 
-n_steps = 500000
+# n_steps = 500000
 
-wandb.init(
-    project="Airline Ticket Simulation",
-    sync_tensorboard=True
-)
-model.learn(n_steps, progress_bar=True)
+# wandb.init(
+#     project="Airline Ticket Simulation",
+#     sync_tensorboard=True,
+#     mode='disabled'
+# )
 
-simulation_run(model)
+# model.learn(n_steps, progress_bar=True)
+
+# simulation_run(model)
+
+from models.policyiteration import PolicyIteration
+
+PolicyIteration(env).solve()
