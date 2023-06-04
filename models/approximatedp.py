@@ -1,6 +1,6 @@
 import random
 import numpy as np
-from referenceimplementation.solver import Solver
+from solver import Solver
 
 class ADP(Solver):
     def solve(self, K):

@@ -10,7 +10,7 @@ from scipy.stats import multinomial
 
 class AirlineEnvironment(gym.Env):
 
-    def __init__(self, continuous_action_space = False) -> None:
+    def __init__(self, continuous_action_space = True) -> None:
 
         # Observation Space
         self.booking_time = 50
@@ -24,17 +24,17 @@ class AirlineEnvironment(gym.Env):
         self.action_space = Box(low = 0, high = self.max_price, shape = (1,)) if self.continuous_action_space else Discrete(self.max_price / self.step_size)
 
         # Event Space
-        self.customers_per_round = 100
+        self.customers_per_round = 10
         self.event_space = Discrete(self.customers_per_round)
 
         self.stochastic_customers = False
 
-        self.reset()
+        self.s = [0, self.flight_capacity - 1]
 
 
     def transform_action(self, a):
         return a * self.step_size
-    
+
     def get_p(self, a, timestep):
         return (1 - self.transform_action(a) / self.max_price) * (1 + timestep) / self.booking_time
 
@@ -51,10 +51,10 @@ class AirlineEnvironment(gym.Env):
             return np.random.multinomial(self.customers_per_round, probability_dist)[0]
         else:
             return int(np.multiply(probability_dist, self.customers_per_round)[0])
-    
+
     def get_reward(self, i, a, s):
         return self.transform_action(a) * min(i, s[1])
-    
+
     def transit_state(self, i, a, s):
         return [s[0] + 1, max(0, s[1] - i)]
 
@@ -67,9 +67,10 @@ class AirlineEnvironment(gym.Env):
         wandb.log({
             'price' : a,
             'empty_seats' : self.s[1],
-            'buying_customers' : i,
+            'buying_customers' : min(i, self.s[1]),
             'profit' : reward
         })
+
         return self.s, reward, self.s[0] == self.booking_time , {}
 
     def simulate_policy(self, policy):
