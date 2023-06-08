@@ -74,17 +74,17 @@ class AirlineEnvironment(gym.Env):
 
         return self.s, reward, self.s[0] == self.booking_time, {}
 
-    def simulate_policy(self, policy):
-        self.reset()
-        actions = []
-        tickets_available = []
-        rewards = []
-        while self.s[0] < self.booking_time:
-            actions.append(self.transform_action(policy[self.s[0]][self.s[1]]))
-            tickets_available.append(self.s[1])
-            _, reward, _, _ = self.step(actions[-1])
-            rewards.append(reward)
-        return actions, tickets_available, rewards
+    # def simulate_policy(self, policy):
+    #     self.reset()
+    #     actions = []
+    #     tickets_available = []
+    #     rewards = []
+    #     while self.s[0] < self.booking_time:
+    #         actions.append(self.transform_action(policy[self.s[0]][self.s[1]]))
+    #         tickets_available.append(self.s[1])
+    #         _, reward, _, _ = self.step(actions[-1])
+    #         rewards.append(reward)
+    #     return actions, tickets_available, rewards
 
     def reset(self):
         self.s = [0, self.flight_capacity - 1]

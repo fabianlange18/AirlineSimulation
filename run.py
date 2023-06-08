@@ -10,14 +10,14 @@ import wandb
 
 env = AirlineEnvironment(continuous_action_space=False)
 
-bi = BackwardInduction(env)
+model = ADP(env)
 
-bi.solve()
+model.solve(K=100000)
 
-print(bi.policy)
-print(bi.value)
+print(model.policy)
+print(model.value)
 
-simulation_run(bi.policy)
+simulation_run(model.policy)
 
 
 # model = PPO(policy = 'MlpPolicy', env = env, gamma=0.99999, tensorboard_log='./logs')
