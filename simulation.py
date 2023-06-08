@@ -1,8 +1,9 @@
+import numpy as np
 import matplotlib.pyplot as plt
 
 from airline_environment import AirlineEnvironment
 
-def simulation_run(model):
+def simulation_run(policy):
 
     env = AirlineEnvironment()
 
@@ -14,7 +15,10 @@ def simulation_run(model):
     reward_trajectory = []
 
     for _ in range(env.booking_time):
-        action = model.predict(state, deterministic=True)[0]
+        if isinstance(policy, np.ndarray):
+            action = [policy[state[0]][state[1]]]
+        else:
+            action = policy.predict(state, deterministic=True)[0]
         state, reward, done, _ = env.step(action)
         price_trajectory.append(action[0])
         state_trajectory.append(state.copy())

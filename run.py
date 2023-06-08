@@ -1,26 +1,35 @@
 from stable_baselines3.ppo import PPO
 from airline_environment import AirlineEnvironment
+from models.backwardinduction import BackwardInduction
+from models.policyiteration import PolicyIteration
+from models.approximatedp import ADP
 
 from simulation import simulation_run
 
 import wandb
 
-env = AirlineEnvironment()
+env = AirlineEnvironment(continuous_action_space=False)
 
-model = PPO(policy = 'MlpPolicy', env = env, gamma=0.99999, tensorboard_log='./logs')
+bi = BackwardInduction(env)
 
-n_steps = 500000
+bi.solve()
 
-wandb.init(
-    project="Airline Ticket Simulation",
-    sync_tensorboard=True,
-    mode='online'
-)
+print(bi.policy)
+print(bi.value)
 
-model.learn(n_steps, progress_bar=True)
+simulation_run(bi.policy)
 
-simulation_run(model)
 
-# from models.policyiteration import PolicyIteration
+# model = PPO(policy = 'MlpPolicy', env = env, gamma=0.99999, tensorboard_log='./logs')
 
-# PolicyIteration(env).solve()
+# n_steps = 500000
+
+# wandb.init(
+#     project="Airline Ticket Simulation",
+#     sync_tensorboard=True,
+#     mode='online'
+# )
+
+# model.learn(n_steps, progress_bar=True)
+
+# simulation_run(model)

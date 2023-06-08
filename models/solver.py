@@ -8,12 +8,12 @@ class Solver(object):
         self.eps = 0.15
         self.value = None
         self.policy = None
-        # self.debug = debug
+        self.debug = debug
         self.reset()
 
     def reset(self):
         self.value = np.zeros(self.env.observation_space.nvec)
-        self.policy = np.random.choice(np.arange(int(self.env.action_space.n)), size=self.env.observation_space.nvec)
+        self.policy = np.random.choice(np.arange(int(self.env.action_space_max)), size=self.env.observation_space.nvec)
 
     def solve(self, *args, **kwargs):
         raise NotImplementedError()

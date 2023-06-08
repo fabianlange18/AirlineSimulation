@@ -1,52 +1,26 @@
-# TODO: Adapt for using multiple dimensions
-
 import numpy as np
+from .solver import Solver
 
 
-class BackwardInduction(object):
-    def __init__(self, env):
-        self.env    = env
-        self.value  = None #timesteps  * #state = values  (result of value function)
-        self.policy = None #timesteps  * #state = actions (take the best possible at this state)
-
-    def reset(self):
-        self.value = np.zeros((self.env.time_limit+1, self.env.observation_space.n))
-        self.policy = np.zeros((self.env.time_limit, self.env.observation_space.n))
+class BackwardInduction(Solver):
 
     def comp_expected_reward(self, t, future):
-        # You can iterate over elements in the observation or state space using:
-        # for s in self.env.observation_space: and for i in self.env.event_space,
-        # respectively
-
-        # This function should implement the computation of the expected reward of all
-        # state possible at time t, given the expected reward "future" for all states in
-        # time t+1
-        states_t = np.empty((self.env.num_tickets + 1))
-        policy_t = np.empty((self.env.num_tickets + 1))
-        for s in self.env.observation_space:
-            values = []
-            for a in self.env.action_space:
-                value = 0
-                for i in self.env.event_space:
-                    if not (s == 0 and i == self.env.event_space.h):
-                        value += self.env.get_event_p(i, a, s, t) * (self.env.get_reward(i, a, s, t) + future[s - i])
-                values.append(value)
-            states_t[s] = max(values)
-            policy_t[s] = values.index(max(values))        
-        return states_t, policy_t
-
-    def comp_expected_final_reward(self):
-        # This should compute the expected reward of all final states.
-        states_T = np.arange(0, self.env.num_tickets + 1)
-        return states_T * self.env.f
+        r = np.zeros((self.env.flight_capacity,))
+        a = np.zeros((self.env.flight_capacity,))
+        for s in range(self.env.observation_space.nvec[1]):
+            s = np.array([t, s])
+            a_max = max((
+                (a, sum(
+                    self.env.get_event_p(i, a, s) * (self.env.get_reward(i, a, s) + future[self.env.transit_state(i, a, s)[1]])
+                    for i in range(self.env.customers_per_round)
+                ))
+                for a in range(self.env.action_space_max)
+            ), key=lambda o: o[1])
+            r[s[1]] = a_max[1]
+            a[s[1]] = a_max[0]
+        return r, a
 
     def solve(self):
         self.reset()
-        # This should use the two functions above to fill the value and policy
-        # matrix with the correct values. Policy maps each state at time t to an action,
-        # Value maps each state at time t to its respective value.
-        t = self.env.time_limit
-        self.value[t] = self.comp_expected_final_reward()
-        while t > 0:
-            t -= 1
-            self.value[t], self.policy[t] = self.comp_expected_reward(t, self.value[t+1])
+        for t in range(self.env.booking_time - 1, -1, -1):
+            self.value[t], self.policy[t] = self.comp_expected_reward(t, self.value[t+1] if t + 1 < 10 else np.zeros((self.env.flight_capacity,)))

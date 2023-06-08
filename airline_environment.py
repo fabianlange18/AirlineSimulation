@@ -13,18 +13,19 @@ class AirlineEnvironment(gym.Env):
     def __init__(self, continuous_action_space = True) -> None:
 
         # Observation Space
-        self.booking_time = 50
-        self.flight_capacity = 100
+        self.booking_time = 10
+        self.flight_capacity = 10
         self.observation_space = MultiDiscrete([self.booking_time, self.flight_capacity])
 
         # Action Space
-        self.max_price = 250
-        self.step_size = 10 # only relevant in discrete case
+        self.max_price = 20
+        self.step_size = 2 # only relevant in discrete case
         self.continuous_action_space = continuous_action_space
         self.action_space = Box(low = 0, high = self.max_price, shape = (1,)) if self.continuous_action_space else Discrete(self.max_price / self.step_size)
+        self.action_space_max = int(self.max_price / self.step_size)
 
         # Event Space
-        self.customers_per_round = 10
+        self.customers_per_round = 20
         self.event_space = Discrete(self.customers_per_round)
 
         self.stochastic_customers = False
@@ -42,7 +43,7 @@ class AirlineEnvironment(gym.Env):
         p = self.get_p(a, s[0])
         probability_dist = [p, 1-p]
         # Do we need to change this for stochastic customers?
-        return multinomial.pmf([i, self.customers_per_round - 1], self.customers_per_round, probability_dist)
+        return multinomial.pmf([i, self.customers_per_round - i], self.customers_per_round, probability_dist)
 
     def sample_event(self, a, s):
         p = self.get_p(a, s[0])
@@ -56,7 +57,7 @@ class AirlineEnvironment(gym.Env):
         return self.transform_action(a) * min(i, s[1])
 
     def transit_state(self, i, a, s):
-        return [s[0] + 1, max(0, s[1] - i)]
+        return [min(s[0] + 1, self.booking_time - 1), max(0, s[1] - i)]
 
     def step(self, a):
         a = a[0]
@@ -64,14 +65,14 @@ class AirlineEnvironment(gym.Env):
         self.s = self.transit_state(i, a, self.s)
         reward = self.get_reward(i, a, self.s)
 
-        wandb.log({
-            'price' : a,
-            'empty_seats' : self.s[1],
-            'buying_customers' : min(i, self.s[1]),
-            'profit' : reward
-        })
+        # wandb.log({
+        #     'price' : a,
+        #     'empty_seats' : self.s[1],
+        #     'buying_customers' : min(i, self.s[1]),
+        #     'profit' : reward
+        # })
 
-        return self.s, reward, self.s[0] == self.booking_time , {}
+        return self.s, reward, self.s[0] == self.booking_time, {}
 
     def simulate_policy(self, policy):
         self.reset()
