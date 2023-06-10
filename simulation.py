@@ -16,12 +16,12 @@ def simulation_run(policy):
 
     for _ in range(env.booking_time):
         if isinstance(policy, np.ndarray):
-            action = [policy[state[0]][state[1]]]
+            action = policy[*state]
         else:
             action = policy.predict(state, deterministic=True)[0]
         state, reward, done, _ = env.step(action)
-        price_trajectory.append(action[0])
-        state_trajectory.append(state.copy())
+        price_trajectory.append(action)
+        state_trajectory.append(state)
         reward_trajectory.append(reward)
 
     fig, (ax1, ax2, ax3) = plt.subplots(3, sharex=True)

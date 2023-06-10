@@ -1,10 +1,13 @@
 import random
+from tqdm import trange
+
 from .solver import Solver
 
 class ADP(Solver):
     def solve(self, K):
         s = self.env.s
-        for _ in range(K):
+        print("\nTabular Forward Simulation")
+        for _ in trange(K):
             if random.random() < self.eps:
                 a = self.env.action_space.sample()
                 value_candidate = sum(

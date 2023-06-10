@@ -30,7 +30,7 @@ class AirlineEnvironment(gym.Env):
 
         self.stochastic_customers = False
 
-        self.s = self.reset()
+        self.reset()
 
 
     def transform_action(self, a):
@@ -62,7 +62,6 @@ class AirlineEnvironment(gym.Env):
         return [s[0] + 1, max(0, s[1] - i)]
 
     def step(self, a):
-        a = a[0]
         i = self.sample_event(a, self.s)
         reward = self.get_reward(i, a, self.s)
         self.s = self.transit_state(i, a, self.s)
@@ -74,7 +73,8 @@ class AirlineEnvironment(gym.Env):
         #     'profit' : reward
         # })
 
-        return self.s, reward, self.s[0] == self.booking_time, {}
+        return self.s, reward, self.s[0] == self.booking_time - 1, {}
 
     def reset(self):
-        return [0, self.flight_capacity - 1]
+        self.s = [0, self.flight_capacity - 1]
+        return self.s
