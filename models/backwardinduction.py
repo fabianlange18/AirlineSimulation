@@ -7,7 +7,7 @@ class BackwardInduction(Solver):
     def comp_expected_reward(self, t, future):
         r = np.zeros((self.env.flight_capacity,))
         a = np.zeros((self.env.flight_capacity,))
-        for s in range(self.env.observation_space.nvec[1]):
+        for s in range(self.env.flight_capacity):
             s = np.array([t, s])
             a_max = max((
                 (a, sum(
@@ -23,4 +23,4 @@ class BackwardInduction(Solver):
     def solve(self):
         self.reset()
         for t in range(self.env.booking_time - 1, -1, -1):
-            self.value[t], self.policy[t] = self.comp_expected_reward(t, self.value[t+1] if t + 1 < 10 else np.zeros((self.env.flight_capacity,)))
+            self.value[t], self.policy[t] = self.comp_expected_reward(t, self.value[t+1] if t + 1 < self.env.booking_time else np.zeros((self.env.flight_capacity,)))

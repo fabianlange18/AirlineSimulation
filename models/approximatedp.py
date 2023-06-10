@@ -8,13 +8,17 @@ class ADP(Solver):
             if random.random() < self.eps:
                 a = self.env.action_space.sample()
                 value_candidate = sum(
-                    self.env.get_event_p(i, a, s) * (self.env.get_reward(i, a, s) + self.gamma * self.value[self.env.transit_state(i, a, s)[0]][self.env.transit_state(i, a, s)[1]])
+                    self.env.get_event_p(i, a, s) * (self.env.get_reward(i, a, s) + self.gamma * 
+                                                     ( self.value[*self.env.transit_state(i, self.policy[*s], s)] if s[0] < self.env.booking_time - 1 else 0)
+                                                     )
                     for i in range(self.env.customers_per_round)
                 )
             else:
                 a_max = max((
                     (a, sum(
-                        self.env.get_event_p(i, a, s) * (self.env.get_reward(i, a, s) + self.gamma * self.value[self.env.transit_state(i, a, s)[0]][self.env.transit_state(i, a, s)[1]])
+                        self.env.get_event_p(i, a, s) * (self.env.get_reward(i, a, s) + self.gamma * 
+                                                         ( self.value[*self.env.transit_state(i, self.policy[*s], s)] if s[0] < self.env.booking_time - 1 else 0)
+                                                         )
                         for i in range(self.env.customers_per_round)
                     ))
                     for a in range(self.env.action_space_max)
