@@ -4,7 +4,7 @@ from .solver import Solver
 
 
 class ValueIteration(Solver):
-    def solve(self, print_diff_to=None):
+    def solve(self):
         self.reset()
         delta = self.eps
         i = 0
@@ -28,7 +28,4 @@ class ValueIteration(Solver):
                 self.policy[*s] = max_a[0]
                 delta = max(delta, abs(v - self.value[*s]))
 
-            if print_diff_to is not None:
-                diff = np.max(np.abs(self.value - print_diff_to))
-                print(f"DIFF: {diff} DIFF-D: {np.abs(diff-delta)} DIFF/D: {diff/delta}")
             not self.debug or print(f"I {i} D {delta}")

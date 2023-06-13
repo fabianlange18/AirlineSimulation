@@ -34,8 +34,4 @@ class QLearning(Solver):
                 s = self.env.reset()
 
         self.policy = np.argmax(self.q_value, axis=-1)
-
-    def render_solution(self):
-        print("# S # V # A #")
-        for k in self.env.observation_space:
-            print(f"# {k} # {np.max(self.q_value[k])} # {self.policy[k]}")
+        self.value = np.max(self.q_value, axis=-1)

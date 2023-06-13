@@ -12,7 +12,6 @@ class PolicyIteration(Solver):
             self.impr_values()
             not self.debug or print(f"Value improvement done")
             instable = self.impr_policy()
-        return self.policy
 
     def impr_policy(self):
         p_instable = False

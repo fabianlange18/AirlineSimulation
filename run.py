@@ -1,64 +1,31 @@
-from stable_baselines3.ppo import PPO
 from airline_environment import AirlineEnvironment
 
-from models.backwardinduction import BackwardInduction
-from models.policyiteration import PolicyIteration
-from models.valueiteration import ValueIteration
-
-from models.approximatedp import ADP
-from models.qlearning import QLearning
+from models.choose import choose_model
+from calculation.dp_calculation import calculate_perfect_policy
+from calculation.simulation_based_calculation import calculate_simulation_based
 
 from simulation import simulation_run
 
-import wandb
-import numpy as np
-
 env = AirlineEnvironment(continuous_action_space=False)
 
-bi = BackwardInduction(env)
-pi = PolicyIteration(env)
-vi = ValueIteration(env)
+perfect_policy, perfect_value = calculate_perfect_policy(env)
 
-bi.solve()
-pi.solve()
-vi.solve()
+steps_array = [100, 500, 1000, 5000, 10000, 50000]
 
-assert(np.all(bi.policy == pi.policy))
-assert(np.all(bi.policy == vi.policy))
-assert(np.all(pi.policy == vi.policy))
+for steps in steps_array:
+    approximate_policy, approximate_value = calculate_simulation_based('adp', env, steps, perfect_policy, perfect_value)
+    approximate_policy, approximate_value = calculate_simulation_based('ql', env, steps, perfect_policy, perfect_value)
 
-print("\nPerfect Policy calculated by BI, PI and VI:")
-print(bi.policy)
-simulation_run(bi.policy)
+# model = choose_model('ppo', env)
 
+# n_steps = 50
 
-adp = ADP(env)
-ql = QLearning(env)
+# # wandb.init(
+# #     project="Airline Ticket Simulation",
+# #     sync_tensorboard=True,
+# #     mode='online'
+# # )
 
-k = 1
-adp.solve(K=k)
-ql.solve(steps=k)
+# model.learn(n_steps, progress_bar=True)
 
-print(f"\nApproximate Policy by Tabular Forward Simulation after {k} steps:")
-# Currently using zeros as initial policy and constant eps
-print(adp.policy)
-
-print(f"\nApproximate Policy by Q-Learning after {k} steps:")
-# Currently using zeros as initial policy and constant eps
-print(ql.policy)
-
-
-
-model = PPO(policy = 'MlpPolicy', env = env, gamma=0.99999, tensorboard_log='./logs')
-
-n_steps = 50
-
-# wandb.init(
-#     project="Airline Ticket Simulation",
-#     sync_tensorboard=True,
-#     mode='online'
-# )
-
-model.learn(n_steps, progress_bar=True)
-
-simulation_run(model)
+# simulation_run(model)

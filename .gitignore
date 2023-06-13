@@ -3,7 +3,8 @@ __pycache__
 
 wandb/
 logs/
+plots/
 
 .DS_Store
 
-dp_optimal_solution/
+s41272-020-00228-4.pdf
