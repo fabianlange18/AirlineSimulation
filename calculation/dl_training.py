@@ -9,7 +9,7 @@ def dl_training(model_name, env, episodes, wandb = False, compare_policy = None,
 
     steps = env.booking_time * episodes
 
-    assert model_name in ['dqn', 'ddpg', 'a2c', 'sac', 'ppo'], "Model name must be one of dqn, ddpg, a2c, sac or ppo."
+    assert model_name in ['dqn', 'ddpg', 'a2c', 'td3', 'sac', 'ppo'], "Model name must be one of dqn, ddpg, a2c, td3, sac or ppo."
     model = choose_model(model_name, env)
 
     if wandb:

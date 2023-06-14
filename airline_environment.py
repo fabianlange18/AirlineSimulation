@@ -60,6 +60,7 @@ class AirlineEnvironment(gym.Env):
         return [s[0] + 1, max(0, s[1] - i)]
 
     def step(self, a):
+        a = a[0] if isinstance(a, np.ndarray) else a
         i = self.sample_event(a, self.s)
         reward = self.get_reward(i, a, self.s)
         self.s = self.transit_state(i, a, self.s)

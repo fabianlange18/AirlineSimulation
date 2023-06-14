@@ -9,14 +9,11 @@ from stable_baselines3.ddpg import DDPG
 from stable_baselines3.a2c import A2C
 from stable_baselines3.sac import SAC
 from stable_baselines3.ppo import PPO
-
-# TODO: Should we include these two?
-from stable_baselines3.her import HerReplayBuffer
 from stable_baselines3.td3 import TD3
 
 def choose_model(model_name, env, debug = False, policy = 'MlpPolicy'):
 
-    assert model_name in ['bi', 'vi', 'pi', 'adp', 'ql', 'dqn', 'ddpg', 'a2c', 'sac', 'ppo'], "Model name must be one of bi, vi, pi, adp, ql, dqn, ddpg, a2c, sac or ppo"
+    assert model_name in ['bi', 'vi', 'pi', 'adp', 'ql', 'dqn', 'ddpg', 'a2c', 'td3', 'sac', 'ppo'], "Model name must be one of bi, vi, pi, adp, ql, dqn, ddpg, a2c, sac or ppo"
 
     if model_name == 'bi':
         return BackwardInduction(env, debug)
@@ -34,6 +31,8 @@ def choose_model(model_name, env, debug = False, policy = 'MlpPolicy'):
         return DDPG(policy, env)
     elif model_name == 'a2c':
         return A2C(policy, env)
+    elif model_name == 'td3':
+        return TD3(policy, env)
     elif model_name == 'sac':
         return SAC(policy, env)
     elif model_name == 'ppo':
