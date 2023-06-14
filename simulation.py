@@ -36,7 +36,9 @@ def simulation_run(policy, model_name, episodes):
     ax3.plot(reward_trajectory)
     ax3.set_title("Profits")
 
-    plt.savefig(f'./plots/simulations/{model_name}_{episodes}_r{int(np.sum(reward_trajectory))}')
+    plt.title(f"Total reward: {np.sum(reward_trajectory)}")
+
+    plt.savefig(f'./plots/simulations/{model_name}_{episodes}')
     plt.close()
     
     return np.sum(reward_trajectory)

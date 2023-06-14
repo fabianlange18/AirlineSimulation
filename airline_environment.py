@@ -14,7 +14,7 @@ class AirlineEnvironment(gym.Env):
 
         # Observation Space
         self.booking_time = 10
-        self.flight_capacity = 12
+        self.flight_capacity = 10
         self.observation_space = MultiDiscrete([self.booking_time, self.flight_capacity])
 
         # Action Space
@@ -29,6 +29,8 @@ class AirlineEnvironment(gym.Env):
         self.event_space = Discrete(self.customers_per_round)
 
         self.stochastic_customers = False
+
+        self.initial_state = [0, self.flight_capacity - 1]
 
         self.reset()
 
@@ -75,5 +77,5 @@ class AirlineEnvironment(gym.Env):
         return self.s, reward, self.s[0] == self.booking_time - 1, {}
 
     def reset(self):
-        self.s = [0, self.flight_capacity - 1]
-        return self.s
+        self.s = self.initial_state
+        return self.initial_state
