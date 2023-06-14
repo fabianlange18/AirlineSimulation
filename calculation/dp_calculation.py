@@ -11,7 +11,7 @@ def timeout_handler(signum, frame):
     raise TimeoutError(f"Function takes longer than {timeout} seconds.")
 
 
-def calculate_perfect_policy(env):
+def calculate_perfect_policy(env, print_policy = False):
     bi = choose_model('bi', env)
     pi = choose_model('pi', env)
     vi = choose_model('vi', env)
@@ -29,11 +29,17 @@ def calculate_perfect_policy(env):
 
     if bi_solved or pi_solved or vi_solved:
         print("Optimal Policy calculated by Dynamic Programming:")
-        print(bi.policy if bi_solved else pi.policy if pi_solved else vi.policy)
-    else:
-        print("No Dynamic Programming Method solved in time - Be careful with policy and value evaluation (base policy is not optimal)")
+        perfect_policy = bi.policy if bi_solved else pi.policy if pi_solved else vi.policy
+        perfect_value = bi.value if bi_solved else pi.value if pi_solved else vi.value
+        if print_policy:
+            print("Perfect policy calculated by Dynamic Programming")
+            print(perfect_policy)
+        reward = simulation_run(perfect_policy, 'Optimal Solution', '0')
 
-    return bi.policy, bi.value
+        return perfect_policy, perfect_value, reward
+    
+    else:
+        AssertionError("No Dynamic Programming Method solved in time.")
 
 
 def calculation_time_track(model, name):

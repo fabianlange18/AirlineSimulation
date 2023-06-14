@@ -29,9 +29,9 @@ class ADP(Solver):
                 a = a_max[0]
                 value_candidate = a_max[1]
                 # TODO: Question - Do we need to update the policy also when we play a random action?
-                self.policy[s[0]][s[1]] = a
+                self.policy[*s] = a
             
-            self.value[s[0]][s[1]] = max(self.value[s[0]][s[1]], value_candidate)
+            self.value[*s] = max(self.value[*s], value_candidate)
             
             if s[0] == self.env.booking_time - 1:
                 s = self.env.reset()

@@ -5,7 +5,7 @@ from util.colormap import plot_colormap
 from util.possible_states import setup_possible_states_array
 from simulation import simulation_run
 
-def dl_training(model_name, env, episodes, wandb = False, compare_policy = None):
+def dl_training(model_name, env, episodes, wandb = False, compare_policy = None, print_policy = False):
 
     steps = env.booking_time * episodes
 
@@ -32,6 +32,10 @@ def dl_training(model_name, env, episodes, wandb = False, compare_policy = None)
     if compare_policy is not None:
         plot_colormap(policy, compare_policy, model_name, episodes, title='Policy')
 
-    simulation_run(policy, model_name, episodes)
+    reward = simulation_run(policy, model_name, episodes)
 
-    return policy
+    if print_policy:
+        print(f"\nApproximate Policy by {model_name} after {episodes} episodes:")
+        print(model.policy)
+
+    return policy, reward
