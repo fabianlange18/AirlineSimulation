@@ -4,7 +4,7 @@ import numpy as np
 
 from models.choose import choose_model
 
-timeout = 4
+timeout = 30
 
 def timeout_handler(signum, frame):
     raise TimeoutError(f"Function takes longer than {timeout} seconds.")

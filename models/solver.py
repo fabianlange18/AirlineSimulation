@@ -1,5 +1,5 @@
 import numpy as np
-from itertools import product
+from util.possible_states import setup_possible_states_array
 
 class Solver(object):
     def __init__(self, env, debug=True):
@@ -10,7 +10,7 @@ class Solver(object):
         self.value = None
         self.policy = None
         self.debug = debug
-        self.possible_states_array = self.setup_possible_states_array()
+        self.possible_states_array = setup_possible_states_array(env)
         self.reset()
 
     def reset(self):
@@ -22,9 +22,3 @@ class Solver(object):
 
     def solve(self, *args, **kwargs):
         raise NotImplementedError()
-
-    def setup_possible_states_array(self):
-        max_values = self.env.observation_space.nvec
-        ranges = [range(max_values[0])]
-        ranges.append(*[range(max_val - 1, -1, -1) for max_val in max_values[1:]])
-        return np.array(list(product(*ranges)))

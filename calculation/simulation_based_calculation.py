@@ -3,7 +3,7 @@ from util.colormap import plot_colormap
 
 def calculate_simulation_based(model_name, env, k_steps, compare_policy = None, compare_value = None):
 
-    assert model_name in ['adp', 'ql'], "Model name must be one of adp or ql"
+    assert model_name in ['adp', 'ql'], "Model name must be one of adp or ql."
     model = choose_model(model_name, env)
     model.solve(k_steps)
 
