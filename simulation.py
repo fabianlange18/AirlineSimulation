@@ -3,7 +3,7 @@ import matplotlib.pyplot as plt
 
 from airline_environment import AirlineEnvironment
 
-def simulation_run(policy):
+def simulation_run(policy, model_name, episodes):
 
     env = AirlineEnvironment()
 
@@ -36,4 +36,6 @@ def simulation_run(policy):
     ax3.plot(reward_trajectory)
     ax3.set_title("Profits")
 
-    plt.show()
+    plt.savefig(f'./plots/simulations/{model_name}_{episodes}')
+    plt.close()
+    print(f'Total reward: {np.sum(reward_trajectory)}')

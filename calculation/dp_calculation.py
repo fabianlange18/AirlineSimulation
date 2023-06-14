@@ -3,8 +3,9 @@ import signal
 import numpy as np
 
 from models.choose import choose_model
+from simulation import simulation_run
 
-timeout = 30
+timeout = 60
 
 def timeout_handler(signum, frame):
     raise TimeoutError(f"Function takes longer than {timeout} seconds.")
@@ -29,6 +30,8 @@ def calculate_perfect_policy(env):
     if bi_solved or pi_solved or vi_solved:
         print("Optimal Policy calculated by Dynamic Programming:")
         print(bi.policy if bi_solved else pi.policy if pi_solved else vi.policy)
+    else:
+        print("No Dynamic Programming Method solved in time - Be careful with policy and value evaluation (base policy is not optimal)")
 
     return bi.policy, bi.value
 

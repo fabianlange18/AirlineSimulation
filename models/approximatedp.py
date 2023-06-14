@@ -6,7 +6,7 @@ from .solver import Solver
 class ADP(Solver):
     def solve(self, steps):
         s = self.env.s
-        print("\nTabular Forward Simulation")
+        print("\nTabular Forward Calculation")
         for _ in trange(steps):
             if random.random() < self.eps:
                 a = self.env.action_space.sample()

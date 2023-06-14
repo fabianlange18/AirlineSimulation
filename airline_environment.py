@@ -14,7 +14,7 @@ class AirlineEnvironment(gym.Env):
 
         # Observation Space
         self.booking_time = 10
-        self.flight_capacity = 10
+        self.flight_capacity = 12
         self.observation_space = MultiDiscrete([self.booking_time, self.flight_capacity])
 
         # Action Space
@@ -56,8 +56,6 @@ class AirlineEnvironment(gym.Env):
         return self.transform_action(a) * min(i, s[1])
 
 
-    # Problem: Finite Horizon - we want the final state to be [booking time, 0]
-    # but we also need to reset one step earlier for calculing the next episode
     def transit_state(self, i, a, s):
         return [s[0] + 1, max(0, s[1] - i)]
 
