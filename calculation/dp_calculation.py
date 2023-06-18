@@ -5,6 +5,8 @@ import numpy as np
 from models.choose import choose_model
 from simulation import simulation_run
 
+from util.colormap import plot_policy
+
 timeout = 60
 
 def timeout_handler(signum, frame):
@@ -31,12 +33,13 @@ def calculate_perfect_policy(env, print_policy = False):
         print("Optimal Policy calculated by Dynamic Programming:")
         perfect_policy = bi.policy if bi_solved else pi.policy if pi_solved else vi.policy
         perfect_value = bi.value if bi_solved else pi.value if pi_solved else vi.value
+        plot_policy(perfect_policy, '0_DP', 0, 'Optimal')
         if print_policy:
             print("Perfect policy calculated by Dynamic Programming")
             print(perfect_policy)
-        reward = simulation_run(perfect_policy, 'Optimal Solution', '0')
+        perfect_reward = simulation_run(perfect_policy, '0_DP_Optimal', '0')
 
-        return perfect_policy, perfect_value, reward
+        return perfect_policy, perfect_value, perfect_reward
     
     else:
         AssertionError("No Dynamic Programming Method solved in time.")

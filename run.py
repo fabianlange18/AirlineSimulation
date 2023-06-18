@@ -9,6 +9,9 @@ from util.calculate_init_value import InitialValueCalculator
 import numpy as np
 import matplotlib.pyplot as plt
 
+import sys
+sys.path.append('..')
+
 discrete_env = AirlineEnvironment(continuous_action_space=False)
 cont_env = AirlineEnvironment(continuous_action_space=True)
 
@@ -18,11 +21,11 @@ perfect_policy, perfect_value, perfect_reward = calculate_perfect_policy(discret
 init_value_calculator = InitialValueCalculator(discrete_env)
 
 models_array = ['adp', 'ql', 'dqn', 'a2c', 'td3', 'ppo', 'ddpg', 'sac']
-episodes_array = [1, 5, 10, 15] #, 100, 500, 1000, 5000, 10000, 50000]
+episodes_array = [100, 500, 1000]
 
 results = {model: {'r_means': [], 'r_std': [], 'v_means': [], 'v_std': []} for model in models_array}
 
-n_runs = 2
+n_runs = 5
 
 for episodes in episodes_array:
 
@@ -66,7 +69,7 @@ plt.axhline(y=perfect_reward, color='black', linestyle='--')
 
 plt.xlabel("Episodes")
 plt.ylabel("Reward")
-plt.title("Reward per Method and #Training Episodes")
+plt.title(f"Reward per Method and #Training Episodes (n={n_runs})")
 
 plt.xticks(r + (k-1)/2 * width, episodes_array)
 plt.legend(loc='upper left', bbox_to_anchor=(1.04, 1))
@@ -81,7 +84,7 @@ plt.axhline(y=perfect_value[*discrete_env.initial_state], color='black', linesty
 
 plt.xlabel("Episodes")
 plt.ylabel("Initial Values")
-plt.title("Initial Values per Method and #Training Episodes")
+plt.title(f"Initial Values per Method and #Training Episodes (n={n_runs})")
 
 plt.xticks(r + (k-1)/2 * width, episodes_array)
 plt.legend(loc='upper left', bbox_to_anchor=(1.04, 1))

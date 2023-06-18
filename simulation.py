@@ -34,9 +34,9 @@ def simulation_run(policy, model_name, episodes):
     ax2.plot(state_trajectory[1])
     ax2.set_title("State")
     ax3.plot(reward_trajectory)
-    ax3.set_title("Profits")
+    ax3.set_title(f"Profits (total: {np.sum(reward_trajectory)})")
 
-    plt.title(f"Total reward: {np.sum(reward_trajectory)}")
+    plt.subplots_adjust(hspace=0.35)
 
     plt.savefig(f'./plots/simulations/{model_name}_{episodes}')
     plt.close()
