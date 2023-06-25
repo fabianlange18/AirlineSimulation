@@ -3,7 +3,7 @@ import signal
 import numpy as np
 
 from models.choose import choose_model
-from simulation import simulation_run
+from simulation import simulation_run_monopoly
 
 from util.colormap import plot_policy
 
@@ -37,7 +37,7 @@ def calculate_perfect_policy(env, print_policy = False):
         if print_policy:
             print("Perfect policy calculated by Dynamic Programming")
             print(perfect_policy)
-        perfect_reward = simulation_run(perfect_policy, '0_DP_Optimal', '0')
+        perfect_reward = simulation_run_monopoly(perfect_policy, '0_DP_Optimal', '0')
 
         return perfect_policy, perfect_value, perfect_reward
     

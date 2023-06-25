@@ -3,7 +3,7 @@ import numpy as np
 from models.choose import choose_model
 from util.colormap import plot_colormap
 from util.possible_states import setup_possible_states_array
-from simulation import simulation_run
+from simulation import simulation_run_monopoly, simulation_run_duopoly
 
 def dl_training(model_name, env, episodes, wandb = False, compare_policy = None, print_policy = False):
 
@@ -32,7 +32,7 @@ def dl_training(model_name, env, episodes, wandb = False, compare_policy = None,
     if compare_policy is not None:
         plot_colormap(policy, compare_policy, model_name, episodes, title='Policy')
 
-    reward = simulation_run(policy, model_name, episodes)
+    reward = simulation_run_duopoly(policy, model_name, episodes)[0]
 
     if print_policy:
         print(f"\nApproximate Policy by {model_name} after {episodes} episodes:")

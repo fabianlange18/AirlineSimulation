@@ -1,4 +1,4 @@
-from airline_environment import AirlineEnvironment
+from airline_environment import AirlineEnvironment, AirlineDuopoly
 
 from calculation.dp_calculation import calculate_perfect_policy
 from calculation.adp_ql_calculation import adp_ql_calculation
@@ -12,20 +12,21 @@ import matplotlib.pyplot as plt
 import sys
 sys.path.append('..')
 
-discrete_env = AirlineEnvironment(continuous_action_space=False)
-cont_env = AirlineEnvironment(continuous_action_space=True)
+discrete_env_monopoly = AirlineEnvironment(continuous_action_space=False)
+discrete_env_duopoly = AirlineDuopoly(continuous_action_space=False)
+cont_env_duopoly = AirlineDuopoly(continuous_action_space=True)
 
-perfect_policy, perfect_value, perfect_reward = calculate_perfect_policy(discrete_env)
+perfect_policy, perfect_value, perfect_reward = calculate_perfect_policy(discrete_env_monopoly)
 
 
-init_value_calculator = InitialValueCalculator(discrete_env)
+init_value_calculator = InitialValueCalculator(discrete_env_monopoly)
 
-models_array = ['adp', 'ql', 'dqn', 'a2c', 'td3', 'ppo', 'ddpg', 'sac']
-episodes_array = [100, 500, 1000]
+models_array = ['ppo']
+episodes_array = [100]
 
 results = {model: {'r_means': [], 'r_std': [], 'v_means': [], 'v_std': []} for model in models_array}
 
-n_runs = 5
+n_runs = 1
 
 for episodes in episodes_array:
 
@@ -35,17 +36,17 @@ for episodes in episodes_array:
 
         for model_name in models_array:
 
-            if model_name in ['adp', 'ql']:
+            if model_name in ['adp']:
 
-                policy, _, reward = adp_ql_calculation(model_name, discrete_env, episodes, perfect_policy, perfect_value)
+                policy, _, reward = adp_ql_calculation(model_name, discrete_env_monopoly, episodes, perfect_policy, perfect_value)
 
             elif model_name in ['ql', 'dqn', 'a2c', 'ppo']:
 
-                policy, reward = dl_training(model_name, discrete_env, episodes, compare_policy=perfect_policy)
+                policy, reward = dl_training(model_name, discrete_env_duopoly, episodes, compare_policy=perfect_policy)
 
             else:
 
-                policy, reward = dl_training(model_name, cont_env, episodes, compare_policy=perfect_policy)
+                policy, reward = dl_training(model_name, cont_env_duopoly, episodes, compare_policy=perfect_policy)
 
             intermediate_results[model_name]['r'].append(reward)
             intermediate_results[model_name]['v'].append(init_value_calculator.calculate_initial_value(policy))
@@ -80,7 +81,7 @@ plt.close()
 for i, model_name in enumerate(models_array):
     plt.bar(r + i * width, results[model_name]['v_means'], width=width, label = model_name, yerr = results[model_name]['v_std'])
 
-plt.axhline(y=perfect_value[*discrete_env.initial_state], color='black', linestyle='--')
+plt.axhline(y=perfect_value[*discrete_env_monopoly.initial_state], color='black', linestyle='--')
 
 plt.xlabel("Episodes")
 plt.ylabel("Initial Values")

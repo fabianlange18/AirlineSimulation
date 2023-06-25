@@ -1,6 +1,6 @@
 from models.choose import choose_model
 from util.colormap import plot_colormap
-from simulation import simulation_run
+from simulation import simulation_run_monopoly, simulation_run_duopoly
 
 def adp_ql_calculation(model_name, env, episodes, compare_policy = None, compare_value = None, print_policy = False):
 
@@ -21,6 +21,6 @@ def adp_ql_calculation(model_name, env, episodes, compare_policy = None, compare
         print(f"\nApproximate Policy by {model_name} after {episodes} episodes:")
         print(model.policy)
 
-    reward = simulation_run(model.policy, model_name, episodes)
+    reward = simulation_run_monopoly(model.policy, model_name, episodes)
 
     return model.policy, model.value, reward
