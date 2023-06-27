@@ -3,7 +3,7 @@ from gym.spaces.multi_discrete import MultiDiscrete
 from gym.spaces.discrete import Discrete
 from gym.spaces.box import Box
 
-import wandb
+#import wandb
 
 import numpy as np
 from scipy.stats import multinomial
@@ -29,6 +29,7 @@ class AirlineEnvironment(gym.Env):
         self.event_space = Discrete(self.customers_per_round)
 
         self.stochastic_customers = False
+        self.demand_bonus = 0.4
 
         self.initial_state = [0, self.flight_capacity - 1]
 
@@ -39,8 +40,23 @@ class AirlineEnvironment(gym.Env):
         return a * self.step_size
 
     def get_p_dist(self, a, timestep):
-        p = (1 - self.transform_action(a) / self.max_price) * (1 + timestep) / self.booking_time
-        return [p, 1-p]
+        # customer demand is price and time dependent
+        # based on 2 customer groups:
+        # family group: appears in the middle of the horizon and prefers cheap prices
+        # business group: appears at the very end of the horizon and is willing to pay more
+        # TODO: fix that indices could break
+        price_group_factor = [1, 1, 1.2, 1.5, 2, 1.5, 1.2, 1, 0.6, 0.3]
+        price_trend = (1 - (self.transform_action(a) * price_group_factor[timestep]) / self.max_price)
+
+        time_sensitivity = 1.7
+        time_trend = [0.1, 0.106, 0.12, 0.123, 0.125, 0.25, 0.375, 0.4375, 0.46875, 0.5, 0.46875, 0.4375, 0.375, 0.25, 0.2, 0.22, 0.23, 0.25, 0.3, 0.5]
+
+        t_index = int(20 / self.booking_time) * timestep
+        p = price_trend * (time_trend[t_index] * time_sensitivity)
+
+        # can get necessary?
+        # p = min(p, 1)
+        return [p, 1 - p]
 
     def get_event_p(self, i, a, s):
         p_dist = self.get_p_dist(a, s[0])
