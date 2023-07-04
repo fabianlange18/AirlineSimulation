@@ -19,9 +19,9 @@ class ValueIteration(Solver):
                         self.env.get_event_p(i, a, s) * (self.env.get_reward(i, a, s) + self.gamma * 
                                                          ( self.value[*self.env.transit_state(i, self.policy[*s], s)] if s[0] < self.env.booking_time - 1 else 0)
                                                          )
-                        for i in range(self.env.customers_per_round)
+                        for i in range(self.env.customers_per_round + 1)
                     )))
-                    for a in range(self.env.action_space_max)
+                    for a in range(self.env.action_space_max + 1)
                 )
                 max_a = max(action_values, key=lambda o: o[1])
                 self.value[*s] = max_a[1]

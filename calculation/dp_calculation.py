@@ -30,7 +30,6 @@ def calculate_perfect_policy(env, print_policy = False):
         assert(np.all(pi.policy == vi.policy))
 
     if bi_solved or pi_solved or vi_solved:
-        print("Optimal Policy calculated by Dynamic Programming:")
         perfect_policy = bi.policy if bi_solved else pi.policy if pi_solved else vi.policy
         perfect_value = bi.value if bi_solved else pi.value if pi_solved else vi.value
         plot_policy(perfect_policy, '0_DP', 0, 'Optimal')
