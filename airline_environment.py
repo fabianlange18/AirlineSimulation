@@ -14,7 +14,7 @@ class AirlineEnvironment(gym.Env):
 
         # Observation Space
         self.booking_time = 10
-        self.flight_capacity = 12
+        self.flight_capacity = 10
         self.observation_space = MultiDiscrete([self.booking_time, self.flight_capacity])
 
         # Action Space
@@ -28,7 +28,7 @@ class AirlineEnvironment(gym.Env):
         self.customers_per_round = 10
         self.event_space = Discrete(self.customers_per_round)
 
-        self.stochastic_customers = False
+        self.stochastic_customers = True
 
         self.initial_state = [0, self.flight_capacity - 1]
 

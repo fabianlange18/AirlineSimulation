@@ -3,7 +3,7 @@ import matplotlib.pyplot as plt
 import matplotlib.cm as cm
 
 def plot_colormap(actual, compare_value, model_name, episodes, title, print_labels = False):
-    diff = np.abs(actual - compare_value)
+    diff = np.abs(actual - compare_value).T
     plt.imshow(diff, cm.get_cmap('RdBu').reversed())
     plt.colorbar()
 
@@ -14,14 +14,14 @@ def plot_colormap(actual, compare_value, model_name, episodes, title, print_labe
             plt.text(j, i, f"{diff[i, j]:.0f}", ha='center', va='center', color='white')
 
     plt.title(f'Deviation from optimal {title}')
-    plt.xlabel(xlabel="flight capacity")
-    plt.ylabel(ylabel="booking time")
+    plt.xlabel(xlabel="booking time")
+    plt.ylabel(ylabel="flight capacity")
     plt.savefig(f'./plots/colormaps/{model_name}_{title}_{episodes}')
     plt.close()
 
 def plot_policy(actual, model_name, episodes, title, print_labels = True):
-    diff = np.abs(actual - np.zeros_like(actual))
-    plt.imshow(actual, cm.get_cmap('RdBu').reversed())
+    diff = np.abs(actual - np.zeros_like(actual)).T
+    plt.imshow(actual.T, cm.get_cmap('RdBu').reversed())
     plt.colorbar()
 
     if print_labels:
@@ -31,7 +31,7 @@ def plot_policy(actual, model_name, episodes, title, print_labels = True):
             plt.text(j, i, f"{diff[i, j]:.0f}", ha='center', va='center', color='white')
 
     plt.title(f'{title} Policy')
-    plt.xlabel(xlabel="flight capacity")
-    plt.ylabel(ylabel="booking time")
+    plt.xlabel(xlabel="booking time")
+    plt.ylabel(ylabel="flight capacity")
     plt.savefig(f'./plots/colormaps/{model_name}_{title}')
     plt.close()

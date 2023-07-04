@@ -25,7 +25,7 @@ episodes_array = [100, 500, 1000]
 
 results = {model: {'r_means': [], 'r_std': [], 'v_means': [], 'v_std': []} for model in models_array}
 
-n_runs = 5
+n_runs = 2
 
 for episodes in episodes_array:
 
@@ -67,6 +67,7 @@ for i, model_name in enumerate(models_array):
 
 plt.axhline(y=perfect_reward, color='black', linestyle='--')
 
+plt.ylim(bottom=0)
 plt.xlabel("Episodes")
 plt.ylabel("Reward")
 plt.title(f"Reward per Method and #Training Episodes (n={n_runs})")
@@ -82,6 +83,7 @@ for i, model_name in enumerate(models_array):
 
 plt.axhline(y=perfect_value[*discrete_env.initial_state], color='black', linestyle='--')
 
+plt.ylim(bottom=0)
 plt.xlabel("Episodes")
 plt.ylabel("Initial Values")
 plt.title(f"Initial Values per Method and #Training Episodes (n={n_runs})")
