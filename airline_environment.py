@@ -4,6 +4,7 @@ from gym.spaces.box import Box
 from gym.spaces.discrete import Discrete
 from gym.spaces.multi_discrete import MultiDiscrete
 
+import random
 import numpy as np
 from scipy.stats import multinomial
 
@@ -35,6 +36,9 @@ class AirlineEnvironment(gym.Env):
         self.initial_state = [0, self.flight_capacity]
 
         self.reset()
+
+    def random_action(self):
+        return random.random() * self.max_price if self.continuous_action_space else random.randrange(0, int(self.max_price / self.step_size))
 
 
     def transform_action(self, a):
@@ -69,7 +73,7 @@ class AirlineEnvironment(gym.Env):
         reward = self.get_reward(i, a, self.s)
         self.s = self.transit_state(i, a, self.s)
 
-        return self.s, reward, self.s[0] == self.booking_time - 1, {}
+        return self.s, reward, self.s[0] == self.booking_time - 1, {'i': i}
 
 
     def reset(self):

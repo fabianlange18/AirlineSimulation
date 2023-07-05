@@ -21,11 +21,11 @@ perfect_policy, perfect_value, perfect_reward = calculate_perfect_policy(discret
 init_value_calculator = InitialValueCalculator(discrete_env)
 
 models_array = ['adp', 'ql', 'dqn', 'a2c', 'td3', 'ppo', 'ddpg', 'sac']
-episodes_array = [100, 500, 1000]
+episodes_array = [50, 100, 500, 1000]
 
 results = {model: {'r_means': [], 'r_std': [], 'v_means': [], 'v_std': []} for model in models_array}
 
-n_runs = 2
+n_runs = 20
 
 for episodes in episodes_array:
 
