@@ -3,7 +3,7 @@ import matplotlib.pyplot as plt
 
 from airline_environment import AirlineEnvironment
 
-def simulation_run(policy, model_name, episodes):
+def simulation_run(policy, model_name, episodes, plot = True):
 
     env = AirlineEnvironment()
 
@@ -24,21 +24,22 @@ def simulation_run(policy, model_name, episodes):
         state_trajectory.append(state)
         reward_trajectory.append(reward)
 
-    fig, (ax1, ax2, ax3) = plt.subplots(3, sharex=True)
+    if plot:
+        fig, (ax1, ax2, ax3) = plt.subplots(3, sharex=True)
 
-    state_trajectory = [list(i) for i in zip(*state_trajectory)]
+        state_trajectory = [list(i) for i in zip(*state_trajectory)]
 
-    ax1.plot(price_trajectory)
-    ax1.set_title("Prices")
-    ax2.plot(state_trajectory[0])
-    ax2.plot(state_trajectory[1])
-    ax2.set_title("State")
-    ax3.plot(reward_trajectory)
-    ax3.set_title(f"Profits (total: {np.sum(reward_trajectory)})")
+        ax1.plot(price_trajectory)
+        ax1.set_title("Prices")
+        ax2.plot(state_trajectory[0])
+        ax2.plot(state_trajectory[1])
+        ax2.set_title("State")
+        ax3.plot(reward_trajectory)
+        ax3.set_title(f"Profits (total: {np.sum(reward_trajectory)})")
 
-    plt.subplots_adjust(hspace=0.35)
+        plt.subplots_adjust(hspace=0.35)
 
-    plt.savefig(f'./plots/simulations/{model_name}_{episodes}')
-    plt.close()
+        plt.savefig(f'./plots/simulations/{model_name}_{episodes}')
+        plt.close()
     
     return np.sum(reward_trajectory)
