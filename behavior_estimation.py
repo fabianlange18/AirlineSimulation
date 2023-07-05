@@ -74,9 +74,6 @@ class BehaviorEstimator(Solver):
             coef = regression.coef_
             intercept = regression.intercept_
             return coef[0] * t + coef[1] * x + coef[2] * np.power(t, 2) + coef[3] * np.power(x, 2) + coef[4] * np.sqrt(t) + coef[5] * np.sqrt(x) + coef[6] * x * t + intercept
-        
-        print(f"n={len(trajectories['s0'])} -> MSE: {mse}")
-
 
         if plot:
             print("Coefficients: t, x, t_square, x_square, t_root, x_root, t_x")
@@ -147,7 +144,7 @@ class BehaviorEstimator(Solver):
             plt.title("Probabilites for price=9, t=2")
             plt.show()
 
-        return plane_function
+        return plane_function, mse
     
 
 
@@ -172,7 +169,7 @@ class BehaviorEstimator(Solver):
     def solve_estimated(self, n):
         self.reset()
         trajectories = self.generate_samples(n)
-        plane_function = self.fit_customer_behavior(trajectories)
+        plane_function, self.mse = self.fit_customer_behavior(trajectories)
         for t in range(self.env.booking_time - 1, -1, -1):
             self.value[t], self.policy[t] = self.comp_expected_reward_estimated(plane_function, t, self.value[t+1] if t + 1 < self.env.booking_time else np.zeros((self.env.flight_capacity + 1,)))
 
@@ -190,7 +187,8 @@ estimator.fit_customer_behavior(trajectories, plot=True)
 
 
 reward_trajectory = []
-n = np.arange(10, 500, step=10)
+mse_trajectory = []
+n = np.arange(20, 1000, step=10)
 
 for n_i in n:
 
@@ -200,7 +198,12 @@ for n_i in n:
     # plot_colormap(estimator.policy, bi.policy, model_name= "0_Estimation", episodes = n_i, title="Policy")
     reward = simulation_run(estimator.policy, model_name="0_Estimation", episodes=n_i, plot = False)
     reward_trajectory.append(reward)
+    mse_trajectory.append(estimator.mse)
 
 plt.figure()
 plt.plot(n, reward_trajectory)
+plt.show()
+
+plt.figure()
+plt.plot(n, mse_trajectory)
 plt.show()
