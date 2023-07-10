@@ -12,7 +12,7 @@ class Estimator():
 
     def __init__(self, env, n, plot = False) -> None:
         self.n = n
-        self.plot = plot
+        self.save_plot_dir = './plots/estimations/' if plot else None
         self.env = env
         self.estimate_function, self.mse = self.estimate_function()
 
@@ -71,13 +71,15 @@ class Estimator():
             intercept = regression.intercept_
             return coef[0] * t + coef[1] * x + coef[2] * np.power(t, 2) + coef[3] * np.power(x, 2) + coef[4] * np.sqrt(t) + coef[5] * np.sqrt(x) + coef[6] * x * t + intercept
 
-        if self.plot:
-            print("Coefficients: t, x, t_square, x_square, t_root, x_root, t_x")
-            print(regression.coef_)
-            print("Intercept:")
-            print(regression.intercept_)
-            print("MSE:")
-            print(mse)
+        if self.save_plot_dir:
+
+            f = open(f'{self.save_plot_dir}/summary.txt', 'a')
+            f.write(f"Regression for {self.n} data points:\n")
+            f.write("Coefficients: t, x, t_square, x_square, t_root, x_root, t_x\n")
+            [f.write(f'{round(coef, 4)}  ') for coef in regression.coef_]
+            f.write(f"\nIntercept: {regression.intercept_}\n")
+            f.write(f"MSE: {mse}\n\n")
+            f.close()
 
             fig = plt.figure()
             ax = fig.add_subplot(111, projection='3d')
@@ -96,13 +98,14 @@ class Estimator():
 
             plt.title("Fitted Probabilities")
 
-            plt.show()
+            plt.savefig(f"{self.save_plot_dir}/probabilities_{self.n}")
+            plt.close()
 
             fig = plt.figure()
             ax = fig.add_subplot(111, projection='3d')
 
             def optimal_function(x, t):
-                return self.env.calculate_p(x, t)
+                return self.env.calculate_p(x, t) * self.env.customers_per_round
 
             x_grid, y_grid = np.meshgrid(np.linspace(0, 20, 20), np.linspace(0, 20, 20))
             z_grid = optimal_function(x_grid, y_grid)
@@ -113,7 +116,8 @@ class Estimator():
             ax.set_ylabel('t')
             ax.set_zlabel('y')
             plt.title("Real Probabilities")
-            plt.show()
+            plt.savefig(f"{self.save_plot_dir}/real_probabilities_{self.n}")
+            plt.close()
 
 
             plt.figure()
@@ -121,21 +125,25 @@ class Estimator():
             plt.plot(np.arange(10) + 0.5, [self.env.get_event_p(i, 5, [5]) for i in range(10)])
             plt.plot(np.arange(10) + 0.5, [poisson.pmf(i, mu=estimated_function(x=5, t=5)) for i in range(10)])
             plt.title("Probabilites for price=5, t=5")
-            plt.show()
+            plt.savefig(f"{self.save_plot_dir}/probabilities_{self.n}_middle")
+            plt.close()
 
             plt.figure()
             plt.hist(poisson.rvs(mu=estimated_function(x=1, t=10), size=100000), range=(0, 10), density=True, edgecolor='black')
             plt.plot(np.arange(10) + 0.5, [self.env.get_event_p(i, 1, [10]) for i in range(10)])
             plt.plot(np.arange(10) + 0.5, [poisson.pmf(i, mu=estimated_function(x=1, t=10)) for i in range(10)])
             plt.title("Probabilites for price=1, t=10")
-            plt.show()
+            plt.savefig(f"{self.save_plot_dir}/probabilities_{self.n}_high")
+            plt.close()
 
             plt.figure()
-            plt.hist(poisson.rvs(mu=estimated_function(x=9, t=2), size=100000), range=(0, 10), density=True, edgecolor='black')
+            mu = estimated_function(x=9, t=2) if estimated_function(x=9, t=2) > 0 else 0
+            plt.hist(poisson.rvs(mu=mu, size=100000), range=(0, 10), density=True, edgecolor='black')
             plt.plot(np.arange(10) + 0.5, [self.env.get_event_p(i, 9, [2]) for i in range(10)])
             plt.plot(np.arange(10) + 0.5, [poisson.pmf(i, mu=estimated_function(x=9, t=2)) for i in range(10)])
             plt.title("Probabilites for price=9, t=2")
-            plt.show()
+            plt.savefig(f"{self.save_plot_dir}/probabilities_{self.n}_low")
+            plt.close()
 
         return estimated_function, mse
     

@@ -3,7 +3,7 @@ import matplotlib.pyplot as plt
 
 from airline_environment import AirlineEnvironment
 
-def simulation_run(policy, model_name, episodes, plot = True):
+def simulation_run(policy, model_name = '', episodes = '', plot = True):
 
     env = AirlineEnvironment()
 
