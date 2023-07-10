@@ -1,4 +1,5 @@
 from airline_environment import AirlineEnvironment
+from models.estimator import Estimator
 
 from calculation.dp_calculation import calculate_perfect_policy
 from calculation.adp_ql_calculation import adp_ql_calculation
@@ -15,17 +16,21 @@ sys.path.append('..')
 discrete_env = AirlineEnvironment(continuous_action_space=False)
 cont_env = AirlineEnvironment(continuous_action_space=True)
 
+estimator = Estimator(discrete_env, n=1000)
+
 perfect_policy, perfect_value, perfect_reward = calculate_perfect_policy(discrete_env)
+
+perfect_policy_est, perfect_value_est, perfect_reward_est = calculate_perfect_policy(discrete_env, estimator)
 
 
 init_value_calculator = InitialValueCalculator(discrete_env)
 
-models_array = ['adp', 'ql', 'dqn', 'a2c', 'td3', 'ppo', 'ddpg', 'sac']
+models_array = ['adp', 'adp_est', 'ql', 'dqn', 'a2c', 'td3', 'ppo', 'ddpg', 'sac']
 episodes_array = [50, 100, 500, 1000]
 
 results = {model: {'r_means': [], 'r_std': [], 'v_means': [], 'v_std': []} for model in models_array}
 
-n_runs = 20
+n_runs = 3
 
 for episodes in episodes_array:
 
@@ -35,9 +40,9 @@ for episodes in episodes_array:
 
         for model_name in models_array:
 
-            if model_name in ['adp', 'ql']:
+            if model_name in ['adp', 'adp_est', 'ql']:
 
-                policy, _, reward = adp_ql_calculation(model_name, discrete_env, episodes, perfect_policy, perfect_value)
+                policy, _, reward = adp_ql_calculation(model_name, discrete_env, episodes, estimator, perfect_policy, perfect_value)
 
             elif model_name in ['ql', 'dqn', 'a2c', 'ppo']:
 

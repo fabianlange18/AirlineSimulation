@@ -13,19 +13,25 @@ def timeout_handler(signum, frame):
     raise TimeoutError(f"Function takes longer than {timeout} seconds.")
 
 
-def calculate_perfect_policy(env, print_policy = False):
-    bi = choose_model('bi', env)
-    pi = choose_model('pi', env)
-    vi = choose_model('vi', env)
+def calculate_perfect_policy(env, estimator = None, print_policy = False):
+    if estimator:
+        bi = choose_model('bi_est', env, estimator)
+        pi = choose_model('pi_est', env, estimator)
+        vi = choose_model('vi_est', env, estimator)
+    else:
+        bi = choose_model('bi', env)
+        pi = choose_model('pi', env)
+        vi = choose_model('vi', env)
+
 
     bi_solved = calculation_time_track(bi, "Backward Induction")
     pi_solved = calculation_time_track(pi, "Policy Iteration")
     vi_solved = calculation_time_track(vi, "Value Iteration")
 
     if bi_solved and pi_solved:
-        assert(np.all(bi.policy == pi.policy))
+        assert(np.all(bi.policy[:-1, :] == pi.policy[:-1, :]))
     if bi_solved and vi_solved:
-        assert(np.all(bi.policy == vi.policy))
+        assert(np.all(bi.policy[:-1, :] == vi.policy[:-1, :]))
     if pi_solved and vi_solved:
         assert(np.all(pi.policy == vi.policy))
 

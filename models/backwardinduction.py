@@ -5,13 +5,14 @@ from .solver import Solver
 class BackwardInduction(Solver):
 
     def comp_expected_reward(self, t, future):
+
         r = np.zeros((self.env.flight_capacity + 1,))
         a = np.zeros((self.env.flight_capacity + 1,))
         for s in range(self.env.flight_capacity + 1):
             s = np.array([t, s])
             a_max = max((
                 (a, sum(
-                    self.env.get_event_p(i, a, s) * (self.env.get_reward(i, a, s) + future[self.env.transit_state(i, a, s)[1]])
+                    self.event_p(i, a, s) * (self.env.get_reward(i, a, s) + future[self.env.transit_state(i, a, s)[1]])
                     for i in range(self.env.customers_per_round + 1)
                 ))
                 for a in range(self.env.action_space_max + 1)

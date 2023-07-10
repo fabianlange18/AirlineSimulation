@@ -1,9 +1,11 @@
 import numpy as np
 from util.possible_states import setup_possible_states_array
+from scipy.stats import poisson
 
 class Solver(object):
-    def __init__(self, env, debug=True):
+    def __init__(self, env, estimator=None, debug=False):
         self.env = env
+        self.estimator = estimator
         self.gamma = 1
         self.max_delta = 0.05
         self.eps = 0.15
@@ -22,3 +24,10 @@ class Solver(object):
 
     def solve(self, *args, **kwargs):
         raise NotImplementedError()
+    
+    def event_p(self, i, a, s):
+        if self.estimator:
+            estimated_function = self.estimator.estimate_function
+            return poisson.pmf(i, mu=estimated_function(x=a, t=s[0]))
+        else:
+            return self.env.get_event_p(i, a, s)

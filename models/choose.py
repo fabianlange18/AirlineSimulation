@@ -11,9 +11,9 @@ from stable_baselines3.sac import SAC
 from stable_baselines3.ppo import PPO
 from stable_baselines3.td3 import TD3
 
-def choose_model(model_name, env, debug = False, policy = 'MlpPolicy'):
+def choose_model(model_name, env, estimator = None, debug = False, policy = 'MlpPolicy'):
 
-    assert model_name in ['bi', 'vi', 'pi', 'adp', 'ql', 'dqn', 'ddpg', 'a2c', 'td3', 'sac', 'ppo'], "Model name must be one of bi, vi, pi, adp, ql, dqn, ddpg, a2c, sac or ppo"
+    assert model_name in ['bi', 'vi', 'pi', 'adp', 'bi_est', 'vi_est', 'pi_est', 'adp_est', 'ql', 'dqn', 'ddpg', 'a2c', 'td3', 'sac', 'ppo'], "Model name must be one of bi, vi, pi, adp, ql, dqn, ddpg, a2c, sac or ppo"
 
     if model_name == 'bi':
         return BackwardInduction(env, debug)
@@ -23,6 +23,14 @@ def choose_model(model_name, env, debug = False, policy = 'MlpPolicy'):
         return ValueIteration(env, debug)
     elif model_name == 'adp':
         return ADP(env, debug)
+    if model_name == 'bi_est':
+        return BackwardInduction(env, estimator, debug)
+    elif model_name == 'pi_est':
+        return PolicyIteration(env, estimator, debug)
+    elif model_name == 'vi_est':
+        return ValueIteration(env, estimator, debug)
+    elif model_name == 'adp_est':
+        return ADP(env, estimator, debug)
     elif model_name == 'ql':
         return QLearning(env, debug)
     elif model_name == 'dqn':

@@ -31,7 +31,7 @@ class AirlineEnvironment(gym.Env):
         self.customers_per_round = 10
         self.event_space = Discrete(self.customers_per_round + 1)
 
-        # self.stochastic_customers = True
+        self.stochastic_customers = False
 
         self.initial_state = [0, self.flight_capacity]
 
@@ -56,7 +56,10 @@ class AirlineEnvironment(gym.Env):
 
     def sample_event(self, a , s):
         p = self.calculate_p(a, s[0])
-        return np.random.multinomial(self.customers_per_round, [p, 1-p])[0]
+        if self.stochastic_customers:
+            return np.random.multinomial(self.customers_per_round, [p, 1-p])[0]
+        else:
+            return int(self.customers_per_round * p)
     
     
     def get_reward(self, i, a, s):
