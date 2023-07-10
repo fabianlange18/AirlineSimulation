@@ -12,13 +12,25 @@ class BackwardInduction(Solver):
             s = np.array([t, s, s])
             # a is not array here?
             #i_comp = self.env.sample_event([a, a_comp], s)[1]
+            """a_max = max((
+                (action, sum(
+                    self.env.get_event_p([i, self.env.sample_event([action, a_comp], s)[1]], [action, a_comp], s) * (self.env.get_reward([i, self.env.sample_event([action, a_comp], s)[1]], [action, a_comp], s)[0] + future[self.env.transit_state([i, self.env.sample_event([action, a_comp], s)[1]], [action, a_comp], s)[1]])
+                    for i in range(self.env.customers_per_round)
+                ))
+                for action in range(self.env.action_space_max)
+            ), key=lambda o: o[1])"""
             a_max = max((
                 (a, sum(
-                    self.env.get_event_p([i, self.env.sample_event([a, a_comp], s)[1]], [a, a_comp], s) * (self.env.get_reward([i, self.env.sample_event([a, a_comp], s)[1]], [a, a_comp], s)[0] + future[self.env.transit_state([i, self.env.sample_event([a, a_comp], s)[1]], [a, a_comp], s)[1]])
+                    self.env.get_event_p([i, self.env.sample_event([a, a_comp], s)[1]], [a, a_comp], s) * (
+                                self.env.get_reward([i, self.env.sample_event([a, a_comp], s)[1]], [a, a_comp], s)[0] +
+                                future[
+                                    self.env.transit_state([i, self.env.sample_event([a, a_comp], s)[1]], [a, a_comp],
+                                                           s)[1]])
                     for i in range(self.env.customers_per_round)
                 ))
                 for a in range(self.env.action_space_max)
             ), key=lambda o: o[1])
+            print(a_max)
             r[s[1]] = a_max[1]
             a[s[1]] = a_max[0]
         return r, a

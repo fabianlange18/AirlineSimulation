@@ -87,7 +87,7 @@ class AirlineDuopoly(AirlineEnvironment):
         super().__init__(continuous_action_space)
         self.initial_state = self.initial_state = [0, self.flight_capacity - 1, self.flight_capacity - 1]
         self.observation_space = MultiDiscrete(
-            [self.booking_time, self.flight_capacity, self.flight_capacity])
+            [self.booking_time, self.flight_capacity])
 
     def get_p_dist(self, a, timestep):
         p_1 = (1 - self.transform_action(a[0]) / self.max_price) * (1 + timestep) / self.booking_time
