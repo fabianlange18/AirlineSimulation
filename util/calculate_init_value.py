@@ -9,10 +9,11 @@ class InitialValueCalculator(Solver):
         while delta >= self.max_delta:
             delta = 0
             for s in self.possible_states_array:
+                a_comp = self.env.rule_based_competitor()
                 v = self.value[*s]
                 self.value[*s] = sum((
-                    self.env.get_event_p(i, policy[*s], s) * (self.env.get_reward(i, policy[*s], s) + self.gamma * 
-                                                                   ( self.value[*self.env.transit_state(i, policy[*s], s)] if s[0] < self.env.booking_time - 1 else 0)
+                    self.env.get_event_p([i, self.env.sample_event([policy[*s], a_comp], s)[1]], [policy[*s], a_comp], s) * (self.env.get_reward([i, self.env.sample_event([policy[*s], a_comp], s)[1]], [policy[*s], a_comp], s)[0] + self.gamma *
+                                                                   ( self.value[*self.env.transit_state([i, self.env.sample_event([policy[*s], a_comp], s)[1]], [policy[*s], a_comp], s)] if s[0] < self.env.booking_time - 1 else 0)
                                                                    )
                     for i in range(self.env.customers_per_round)
                 ))

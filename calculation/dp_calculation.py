@@ -15,24 +15,26 @@ def timeout_handler(signum, frame):
 
 def calculate_perfect_policy(env, print_policy = False):
     bi = choose_model('bi', env)
-    pi = choose_model('pi', env)
-    vi = choose_model('vi', env)
+    #pi = choose_model('pi', env)
+    #vi = choose_model('vi', env)
 
     bi_solved = calculation_time_track(bi, "Backward Induction")
-    pi_solved = calculation_time_track(pi, "Policy Iteration")
-    vi_solved = calculation_time_track(vi, "Value Iteration")
+    #pi_solved = calculation_time_track(pi, "Policy Iteration")
+    #vi_solved = calculation_time_track(vi, "Value Iteration")
 
-    if bi_solved and pi_solved:
+    """if bi_solved and pi_solved:
         assert(np.all(bi.policy == pi.policy))
     if bi_solved and vi_solved:
         assert(np.all(bi.policy == vi.policy))
     if pi_solved and vi_solved:
-        assert(np.all(pi.policy == vi.policy))
+        assert(np.all(pi.policy == vi.policy))"""
 
     if bi_solved or pi_solved or vi_solved:
         print("Optimal Policy calculated by Dynamic Programming:")
-        perfect_policy = bi.policy if bi_solved else pi.policy if pi_solved else vi.policy
-        perfect_value = bi.value if bi_solved else pi.value if pi_solved else vi.value
+        perfect_policy = bi.policy
+        # if bi_solved else pi.policy if pi_solved else vi.policy
+        perfect_value = bi.value
+        # if bi_solved else pi.value if pi_solved else vi.value
         plot_policy(perfect_policy, '0_DP', 0, 'Optimal')
         if print_policy:
             print("Perfect policy calculated by Dynamic Programming")

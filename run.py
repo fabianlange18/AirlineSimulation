@@ -1,4 +1,4 @@
-from airline_environment import AirlineEnvironment, AirlineDuopoly
+from airline_environment import AirlineDuopoly
 
 from calculation.dp_calculation import calculate_perfect_policy
 from calculation.adp_ql_calculation import adp_ql_calculation
@@ -12,16 +12,15 @@ import matplotlib.pyplot as plt
 import sys
 sys.path.append('..')
 
-discrete_env_monopoly = AirlineEnvironment(continuous_action_space=False)
 discrete_env_duopoly = AirlineDuopoly(continuous_action_space=False)
 cont_env_duopoly = AirlineDuopoly(continuous_action_space=True)
 
-perfect_policy, perfect_value, perfect_reward = calculate_perfect_policy(discrete_env_monopoly)
+perfect_policy, perfect_value, perfect_reward = calculate_perfect_policy(discrete_env_duopoly)
 
 
-init_value_calculator = InitialValueCalculator(discrete_env_monopoly)
+init_value_calculator = InitialValueCalculator(discrete_env_duopoly)
 
-models_array = ['ppo']
+models_array = ['ppo', 'ql', 'adp']
 episodes_array = [100]
 
 results = {model: {'r_means': [], 'r_std': [], 'v_means': [], 'v_std': []} for model in models_array}
@@ -38,7 +37,7 @@ for episodes in episodes_array:
 
             if model_name in ['adp']:
 
-                policy, _, reward = adp_ql_calculation(model_name, discrete_env_monopoly, episodes, perfect_policy, perfect_value)
+                policy, _, reward = adp_ql_calculation(model_name, discrete_env_duopoly, episodes, perfect_policy, perfect_value)
 
             elif model_name in ['ql', 'dqn', 'a2c', 'ppo']:
 
@@ -81,7 +80,7 @@ plt.close()
 for i, model_name in enumerate(models_array):
     plt.bar(r + i * width, results[model_name]['v_means'], width=width, label = model_name, yerr = results[model_name]['v_std'])
 
-plt.axhline(y=perfect_value[*discrete_env_monopoly.initial_state], color='black', linestyle='--')
+plt.axhline(y=perfect_value[*discrete_env_duopoly.initial_state], color='black', linestyle='--')
 
 plt.xlabel("Episodes")
 plt.ylabel("Initial Values")

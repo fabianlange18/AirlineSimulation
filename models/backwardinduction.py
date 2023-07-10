@@ -7,11 +7,14 @@ class BackwardInduction(Solver):
     def comp_expected_reward(self, t, future):
         r = np.zeros((self.env.flight_capacity,))
         a = np.zeros((self.env.flight_capacity,))
+        a_comp = self.env.rule_based_competitor()
         for s in range(self.env.flight_capacity):
-            s = np.array([t, s])
+            s = np.array([t, s, s])
+            # a is not array here?
+            #i_comp = self.env.sample_event([a, a_comp], s)[1]
             a_max = max((
                 (a, sum(
-                    self.env.get_event_p(i, a, s) * (self.env.get_reward(i, a, s) + future[self.env.transit_state(i, a, s)[1]])
+                    self.env.get_event_p([i, self.env.sample_event([a, a_comp], s)[1]], [a, a_comp], s) * (self.env.get_reward([i, self.env.sample_event([a, a_comp], s)[1]], [a, a_comp], s)[0] + future[self.env.transit_state([i, self.env.sample_event([a, a_comp], s)[1]], [a, a_comp], s)[1]])
                     for i in range(self.env.customers_per_round)
                 ))
                 for a in range(self.env.action_space_max)

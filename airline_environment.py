@@ -85,27 +85,27 @@ class AirlineEnvironment(gym.Env):
 class AirlineDuopoly(AirlineEnvironment):
     def __init__(self, continuous_action_space=True) -> None:
         super().__init__(continuous_action_space)
-        self.initial_state = self.initial_state = [0, self.flight_capacity - 1, self.flight_capacity - 1, 0, 0]
+        self.initial_state = self.initial_state = [0, self.flight_capacity - 1, self.flight_capacity - 1]
         self.observation_space = MultiDiscrete(
-            [self.booking_time, self.flight_capacity, self.flight_capacity, self.max_price, self.max_price])
+            [self.booking_time, self.flight_capacity, self.flight_capacity])
 
     def get_p_dist(self, a, timestep):
         p_1 = (1 - self.transform_action(a[0]) / self.max_price) * (1 + timestep) / self.booking_time
         p_2 = (1 - self.transform_action(a[1]) / self.max_price) * (1 + timestep) / self.booking_time
         p_3 = 1 - p_1 - p_2
         p = softmax([p_1, p_2, p_3])
-        return [p, 1 - p]
+        return p
 
-    def get_event_p(self, i_player, a, s):
+    def get_event_p(self, i, a, s):
         p_dist = self.get_p_dist(a, s[0])
-        return multinomial.pmf([i_player, self.customers_per_round - i_player], self.customers_per_round, p_dist)
+        return multinomial.pmf([i[0], i[1], self.customers_per_round - i[0] - i[1]], self.customers_per_round, p_dist)
 
     def sample_event(self, a, s):
         p_dist = self.get_p_dist(a, s[0])
         if self.stochastic_customers:
-            return np.random.multinomial(self.customers_per_round, p_dist)[0:1]
+            return np.random.multinomial(self.customers_per_round, p_dist)[0:2]
         else:
-            return int(np.multiply(p_dist, self.customers_per_round)[0:1])
+            return np.asarray(np.multiply(p_dist, self.customers_per_round)[0:2], dtype=int)
 
     def get_reward(self, i, a, s):
         reward_1 = super().get_reward(i[0], a[0], s)
