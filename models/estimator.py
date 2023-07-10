@@ -116,7 +116,7 @@ class Estimator():
             ax.set_ylabel('t')
             ax.set_zlabel('y')
             plt.title("Real Probabilities")
-            plt.savefig(f"{self.save_plot_dir}/real_probabilities_{self.n}")
+            plt.savefig(f"{self.save_plot_dir}/real_probabilities")
             plt.close()
 
 

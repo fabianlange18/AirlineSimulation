@@ -7,7 +7,7 @@ from simulation import simulation_run
 
 from util.colormap import plot_policy
 
-timeout = 60
+timeout = 600
 
 def timeout_handler(signum, frame):
     raise TimeoutError(f"Function takes longer than {timeout} seconds.")
