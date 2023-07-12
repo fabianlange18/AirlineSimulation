@@ -87,42 +87,75 @@ class Estimator():
             f.write(f"MSE: {mse}\n\n")
             f.close()
 
-            fig = plt.figure()
-            ax = fig.add_subplot(111, projection='3d')
-            ax.scatter(x, t, Y, s=1)
+            x_scale = np.arange(self.env.max_price + 1)
+            t_scale = np.arange(self.env.booking_time + 1)
+
+            fig = plt.figure(figsize=(12, 4))
+            ax1 = fig.add_subplot(131, projection='3d')
+            ax1.scatter(x, t, Y, s=1)
 
             x_grid, y_grid = np.meshgrid(np.linspace(0, self.env.max_price, self.env.max_price), np.linspace(0, self.env.booking_time, self.env.booking_time))
             z_grid = estimated_function(x_grid, y_grid)
 
             # Plot the plane
-            ax.plot_surface(x_grid, y_grid, z_grid, alpha=0.5)
+            ax1.plot_surface(x_grid, y_grid, z_grid, alpha=0.5)
+            
+            # Plot two lines in the middle
+            ax1.plot(x_scale, [self.env.booking_time / 2] * len(x_scale), estimated_function(x=x_scale, t=self.env.booking_time / 2), color='red')
+            ax1.plot([self.env.max_price / 2] * len(t_scale), t_scale, estimated_function(x=self.env.max_price / 2, t=t_scale), color='green')
 
+            ax1.set_xlabel('x')
+            ax1.set_ylabel('t')
+            ax1.set_zlabel('y')
+            ax1.set_title("Fitted Probabilities")
 
-            ax.set_xlabel('x')
-            ax.set_ylabel('t')
-            ax.set_zlabel('y')
-
-            plt.title("Fitted Probabilities")
+            ax2 = fig.add_subplot(132)
+            ax2.plot(x_scale, estimated_function(x=x_scale, t=self.env.booking_time / 2), color='red')
+            ax2.set_title(f'price -> n_buys if t={self.env.booking_time / 2}')
+            ax2.set_ylim(0, self.env.customers_per_round)
+            
+            ax3 = fig.add_subplot(133)
+            ax3.plot(t_scale, estimated_function(x=self.env.max_price / 2, t=t_scale), color='green')
+            ax3.set_title(f'time -> n_buys if x={self.env.max_price / 2}')
+            ax3.set_ylim(0, self.env.customers_per_round)
 
             plt.savefig(f"{self.save_plot_dir}/probabilities_{self.n}")
+            plt.show()
             plt.close()
 
-            fig = plt.figure()
-            ax = fig.add_subplot(111, projection='3d')
+            fig = plt.figure(figsize=(12, 4))
+            ax = fig.add_subplot(131, projection='3d')
 
             def optimal_function(x, t):
-                return self.env.calculate_p(x, t) * self.env.customers_per_round
+                result = self.env.calculate_p(x, t) * self.env.customers_per_round
+                return np.full_like(x_scale, result) if np.isscalar(result) else result
 
             x_grid, y_grid = np.meshgrid(np.linspace(0, self.env.max_price, self.env.max_price), np.linspace(0, self.env.booking_time, self.env.booking_time))
             z_grid = optimal_function(x_grid, y_grid)
 
             ax.plot_surface(x_grid, y_grid, z_grid, alpha=0.5)
 
+            # Plot two lines in the middle
+            ax1.plot(x_scale, [self.env.booking_time / 2] * len(x_scale), optimal_function(x=x_scale, t=self.env.booking_time / 2), color='red')
+            ax1.plot([self.env.max_price / 2] * len(t_scale), t_scale, optimal_function(x=self.env.max_price / 2, t=t_scale), color='green')
+
             ax.set_xlabel('x')
             ax.set_ylabel('t')
             ax.set_zlabel('y')
-            plt.title("Real Probabilities")
+            ax2.set_title("Real Probabilities")
+
+            ax2 = fig.add_subplot(132)
+            ax2.plot(x_scale, optimal_function(x=x_scale, t=self.env.booking_time / 2), color='red')
+            ax2.set_title(f'price -> n_buys if t={self.env.booking_time / 2}')
+            ax2.set_ylim(0, self.env.customers_per_round)
+            
+            ax3 = fig.add_subplot(133)
+            ax3.plot(t_scale, optimal_function(x=self.env.max_price / 2, t=t_scale), color='green')
+            ax3.set_title(f'time -> n_buys if x={self.env.max_price / 2}')
+            ax3.set_ylim(0, self.env.customers_per_round)
+
             plt.savefig(f"{self.save_plot_dir}/real_probabilities")
+            plt.show()
             plt.close()
 
 
