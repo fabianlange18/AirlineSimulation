@@ -10,14 +10,13 @@ from scipy.stats import multinomial
 
 from customers import Customers
 
-
 class AirlineEnvironment(gym.Env):
 
     def __init__(self, continuous_action_space = True):
 
         # Observation Space
-        self.booking_time = 5
-        self.flight_capacity = 5
+        self.booking_time = 10
+        self.flight_capacity = 10
         self.observation_space = MultiDiscrete([self.booking_time + 1, self.flight_capacity + 1])
 
         # Action Space
@@ -30,8 +29,8 @@ class AirlineEnvironment(gym.Env):
 
 
         # Event Space
-        self.customers = Customers(['rational'], self.max_price, self.booking_time)
-        self.customers_per_round = 10
+        self.customers = Customers(['business'], self.max_price, self.booking_time)
+        self.customers_per_round = 5
         self.event_space = Discrete(self.customers_per_round + 1)
 
         self.stochastic_customers = True

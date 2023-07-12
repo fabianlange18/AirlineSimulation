@@ -14,7 +14,7 @@ class InitialValueCalculator(Solver):
                     self.env.get_event_p(i, policy[*s], s) * (self.env.get_reward(i, policy[*s], s) + self.gamma * 
                                                                    ( self.value[*self.env.transit_state(i, policy[*s], s)] if s[0] < self.env.booking_time - 1 else 0)
                                                                    )
-                    for i in range(self.env.customers_per_round)
+                    for i in range(self.env.customers_per_round + 1)
                 ))
                 delta = max(delta, abs(v - self.value[*s]))
         

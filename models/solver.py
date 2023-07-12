@@ -7,7 +7,7 @@ class Solver(object):
         self.env = env
         self.estimator = estimator
         self.gamma = 1
-        self.max_delta = 0.05
+        self.max_delta = 0.005
         self.eps = 0.15
         self.value = None
         self.policy = None

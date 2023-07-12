@@ -146,9 +146,9 @@ class Estimator():
 
             plt.figure()
             mu = estimated_function(x=9, t=2) if estimated_function(x=9, t=2) > 0 else 0
-            plt.hist(poisson.rvs(mu=mu, size=100000), range=(0, self.env.customers_per_round), density=True, edgecolor='black')
-            plt.plot(np.arange(self.env.customers_per_round) + 0.5, [self.env.get_event_p(i, 9, [2]) for i in range(self.env.customers_per_round)])
-            plt.plot(np.arange(self.env.customers_per_round) + 0.5, [poisson.pmf(i, mu=estimated_function(x=9, t=2)) for i in range(self.env.customers_per_round)])
+            plt.hist(poisson.rvs(mu=mu, size=100000), range=(0, self.env.customers_per_round + 1), density=True, edgecolor='black')
+            plt.plot(np.arange(self.env.customers_per_round + 1) + 0.5, [self.env.get_event_p(i, 9, [2]) for i in range(self.env.customers_per_round + 1)])
+            plt.plot(np.arange(self.env.customers_per_round + 1) + 0.5, [poisson.pmf(i, mu=estimated_function(x=9, t=2)) for i in range(self.env.customers_per_round + 1)])
             plt.title("Probabilites for price=9, t=2")
             plt.savefig(f"{self.save_plot_dir}/probabilities_{self.n}_low")
             plt.close()

@@ -22,11 +22,11 @@ perfect_policy, perfect_value, perfect_reward = calculate_perfect_policy(discret
 assert abs(perfect_value[*discrete_env.initial_state] - init_value_calculator.calculate_initial_value(perfect_policy)) < 0.1
 
 models_array = ['dp_est', 'adp', 'adp_est', 'ql', 'dqn', 'ddpg', 'td3', 'a2c', 'sac', 'ppo']
-episodes_array = [1, 5, 10, 50, 100, 500, 1000]
+episodes_array = [1, 10, 100, 1000]
 
 results = {model: {'r_means': [], 'r_std': [], 'v_means': [], 'v_std': []} for model in models_array}
 
-n_runs = 3
+n_runs = 1
 
 for episodes in episodes_array:
 

@@ -21,7 +21,7 @@ class Customers():
     
     # 3. Business Customer
     def calculate_p_business(self, a, timestep):
-        return (1 - a / self.max_price) * (3. / 4.) / (timestep + 1) + 0.25
+        return (3. / 4.) / (timestep + 1) + 0.25
     
     # 4. Early Booking Customer
     def calculate_p_early_booking(self, a, timestep):

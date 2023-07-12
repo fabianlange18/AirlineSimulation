@@ -36,9 +36,9 @@ def calculate_perfect_policy(env, estimator = None, print_policy = False, just_r
     vi_solved = calculation_time_track(vi, "Value Iteration")
 
     if bi_solved and pi_solved:
-        assert(np.all(bi.policy[:-1, :] == pi.policy[:-1, :]))
+        assert(np.all(bi.policy == pi.policy))
     if bi_solved and vi_solved:
-        assert(np.all(bi.policy[:-1, :] == vi.policy[:-1, :]))
+        assert(np.all(bi.policy == vi.policy))
     if pi_solved and vi_solved:
         assert(np.all(pi.policy == vi.policy))
 

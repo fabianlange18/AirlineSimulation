@@ -23,5 +23,5 @@ class BackwardInduction(Solver):
 
     def solve(self):
         self.reset()
-        for t in range(self.env.booking_time - 1, -1, -1):
+        for t in range(self.env.booking_time, -1, -1):
             self.value[t], self.policy[t] = self.comp_expected_reward(t, self.value[t+1] if t + 1 < self.env.booking_time else np.zeros((self.env.flight_capacity + 1,)))
