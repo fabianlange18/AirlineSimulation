@@ -21,12 +21,12 @@ init_value_calculator = InitialValueCalculator(discrete_env)
 perfect_policy, perfect_value, perfect_reward = calculate_perfect_policy(discrete_env)
 assert abs(perfect_value[*discrete_env.initial_state] - init_value_calculator.calculate_initial_value(perfect_policy)) < 0.1
 
-models_array = ['dp_est', 'adp', 'adp_est', 'ql', 'dqn', 'a2c', 'td3', 'ppo', 'ddpg', 'sac']
-episodes_array = [5, 10, 50, 100, 500, 1000]
+models_array = ['dp_est', 'adp', 'adp_est', 'ql', 'dqn', 'ddpg', 'td3', 'a2c', 'sac', 'ppo']
+episodes_array = [1, 5, 10, 50, 100, 500, 1000]
 
 results = {model: {'r_means': [], 'r_std': [], 'v_means': [], 'v_std': []} for model in models_array}
 
-n_runs = 10
+n_runs = 3
 
 for episodes in episodes_array:
 
@@ -52,6 +52,9 @@ for episodes in episodes_array:
             else:
                 policy, reward = dl_training(model_name, cont_env, episodes, compare_policy=perfect_policy)
 
+            discrete_env.reset()
+            cont_env.reset()
+
             intermediate_results[model_name]['r'].append(reward)
             intermediate_results[model_name]['v'].append(init_value_calculator.calculate_initial_value(policy))
 
@@ -70,7 +73,7 @@ width = 0.8 / len(models_array)
 for i, model_name in enumerate(models_array):
     plt.bar(r + i * width, results[model_name]['r_means'], width=width, label = model_name, yerr = results[model_name]['r_std'])
 
-plt.axhline(y=perfect_reward, color='black', linestyle='--')
+plt.axhline(y=perfect_reward, color='black', linestyle=':')
 
 plt.ylim(bottom=0)
 plt.xlabel("Episodes")
@@ -90,11 +93,11 @@ plt.axhline(y=perfect_value[*discrete_env.initial_state], color='black', linesty
 
 plt.ylim(bottom=0)
 plt.xlabel("Episodes")
-plt.ylabel("Initial Values")
-plt.title(f"Initial Values per Method and #Training Episodes (n={n_runs})")
+plt.ylabel("Expected Total Profit")
+plt.title(f"Expected Total Profit per Method and #Training Episodes (n={n_runs})")
 
 plt.xticks(r + (k-1)/2 * width, episodes_array)
 plt.legend(loc='upper left', bbox_to_anchor=(1.04, 1))
 
-plt.savefig(f'./plots/summary_v', bbox_inches="tight")
+plt.savefig(f'./plots/summary_er', bbox_inches="tight")
 plt.close()

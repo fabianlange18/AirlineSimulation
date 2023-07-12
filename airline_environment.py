@@ -8,18 +8,20 @@ import random
 import numpy as np
 from scipy.stats import multinomial
 
+from customers import Customers
+
 
 class AirlineEnvironment(gym.Env):
 
     def __init__(self, continuous_action_space = True):
 
         # Observation Space
-        self.booking_time = 100
-        self.flight_capacity = 50
+        self.booking_time = 5
+        self.flight_capacity = 5
         self.observation_space = MultiDiscrete([self.booking_time + 1, self.flight_capacity + 1])
 
         # Action Space
-        self.max_price = 200
+        self.max_price = 10
         self.step_size = 1
         self.continuous_action_space = continuous_action_space
 
@@ -28,6 +30,7 @@ class AirlineEnvironment(gym.Env):
 
 
         # Event Space
+        self.customers = Customers(['rational'], self.max_price, self.booking_time)
         self.customers_per_round = 10
         self.event_space = Discrete(self.customers_per_round + 1)
 
@@ -42,11 +45,12 @@ class AirlineEnvironment(gym.Env):
 
 
     def transform_action(self, a):
-        return a * self.step_size if self.continuous_action_space else a
+        return a * self.step_size if not self.continuous_action_space else a
 
 
     def calculate_p(self, a, timestep):
-        return (1 - self.transform_action(a) / self.max_price) * (1 + timestep) / self.booking_time
+        _a = self.transform_action(a)
+        return self.customers.calculate_p(_a, timestep)
 
 
     def get_event_p(self, i, a, s):

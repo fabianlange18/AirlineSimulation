@@ -49,7 +49,13 @@ def calculate_perfect_policy(env, estimator = None, print_policy = False, just_r
         if print_policy:
             print("Perfect policy calculated by Dynamic Programming")
             print(perfect_policy)
-        perfect_reward = simulation_run(perfect_policy, '0_DP_Optimal', '0')
+        if env.stochastic_customers:
+            perfect_rewards = []
+            for _ in range(100):
+                perfect_rewards.append(simulation_run(perfect_policy, '0_DP_Optimal', '0'))
+            perfect_reward = np.mean(perfect_rewards)
+        else:
+            perfect_reward = simulation_run(perfect_policy, '0_DP_Optimal', '0')
 
         return perfect_policy, perfect_value, perfect_reward
     

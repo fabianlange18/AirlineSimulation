@@ -4,6 +4,8 @@ from collections import defaultdict
 
 from scipy.stats import poisson
 from sklearn.linear_model import LinearRegression
+from sklearn.linear_model import Ridge
+from sklearn.linear_model import Lasso
 from sklearn.metrics import mean_squared_error
 from sklearn.model_selection import train_test_split
 
@@ -37,6 +39,8 @@ class Estimator():
             if done:
                 self.env.reset()
 
+        # self.env.reset()
+
         return trajectories
 
 
@@ -48,19 +52,21 @@ class Estimator():
         x = np.array(trajectories['a'])
         t_square = np.power(t, 2)
         x_square = np.power(x, 2)
-        t_root = np.sqrt(t)
-        x_root = np.sqrt(x)
+        t_root_1 = np.sqrt(t+1)
+        x_root_1 = np.sqrt(x+1)
+        t_log_1 = np.log(t+1)
+        x_log_1 = np.log(x+1)
         t_x = t * x
 
         # Stack Features
-        X = np.column_stack((t, x, t_square, x_square, t_root, x_root, t_x))
+        X = np.column_stack((t, x, t_square, x_square, t_root_1, x_root_1, t_log_1, x_log_1, t_x))
         Y = np.array(trajectories['i'])
 
         # Split Test/Train
         X_train, X_test, Y_train, Y_test = train_test_split(X, Y, test_size=0.2)
 
         # Regression
-        regression = LinearRegression()
+        regression = Lasso()
         regression.fit(X_train, Y_train)
 
         Y_pred = regression.predict(X_test)
@@ -69,13 +75,13 @@ class Estimator():
         def estimated_function(x, t):
             coef = regression.coef_
             intercept = regression.intercept_
-            return coef[0] * t + coef[1] * x + coef[2] * np.power(t, 2) + coef[3] * np.power(x, 2) + coef[4] * np.sqrt(t) + coef[5] * np.sqrt(x) + coef[6] * x * t + intercept
+            return coef[0] * t + coef[1] * x + coef[2] * np.power(t, 2) + coef[3] * np.power(x, 2) + coef[4] * np.sqrt(t+1) + coef[5] * np.sqrt(x+1) + coef[6] * np.log(t+1) + coef[7] * np.log(x+1) + coef[8] * x * t + intercept
 
         if self.save_plot_dir:
 
             f = open(f'{self.save_plot_dir}/summary.txt', 'a')
             f.write(f"Regression for {self.n} data points:\n")
-            f.write("Coefficients: t, x, t_square, x_square, t_root, x_root, t_x\n")
+            f.write("Coefficients: t, x, t_square, x_square, t_root+1, x_root+1, t_log+1, x_log+1, t_x\n")
             [f.write(f'{round(coef, 4)}  ') for coef in regression.coef_]
             f.write(f"\nIntercept: {regression.intercept_}\n")
             f.write(f"MSE: {mse}\n\n")
@@ -85,7 +91,7 @@ class Estimator():
             ax = fig.add_subplot(111, projection='3d')
             ax.scatter(x, t, Y, s=1)
 
-            x_grid, y_grid = np.meshgrid(np.linspace(0, 20, 20), np.linspace(0, 20, 20))
+            x_grid, y_grid = np.meshgrid(np.linspace(0, self.env.max_price, self.env.max_price), np.linspace(0, self.env.booking_time, self.env.booking_time))
             z_grid = estimated_function(x_grid, y_grid)
 
             # Plot the plane
@@ -107,7 +113,7 @@ class Estimator():
             def optimal_function(x, t):
                 return self.env.calculate_p(x, t) * self.env.customers_per_round
 
-            x_grid, y_grid = np.meshgrid(np.linspace(0, 20, 20), np.linspace(0, 20, 20))
+            x_grid, y_grid = np.meshgrid(np.linspace(0, self.env.max_price, self.env.max_price), np.linspace(0, self.env.booking_time, self.env.booking_time))
             z_grid = optimal_function(x_grid, y_grid)
 
             ax.plot_surface(x_grid, y_grid, z_grid, alpha=0.5)
@@ -121,26 +127,28 @@ class Estimator():
 
 
             plt.figure()
-            plt.hist(poisson.rvs(mu=estimated_function(x=5, t=5), size=100000), range=(0, 10), density=True, edgecolor='black')
-            plt.plot(np.arange(10) + 0.5, [self.env.get_event_p(i, 5, [5]) for i in range(10)])
-            plt.plot(np.arange(10) + 0.5, [poisson.pmf(i, mu=estimated_function(x=5, t=5)) for i in range(10)])
+            mu = estimated_function(x=5, t=5) if estimated_function(x=5, t=5) > 0 else 0
+            plt.hist(poisson.rvs(mu=mu), range=(0, self.env.customers_per_round), density=True, edgecolor='black')
+            plt.plot(np.arange(self.env.customers_per_round) + 0.5, [self.env.get_event_p(i, 5, [5]) for i in range(self.env.customers_per_round)])
+            plt.plot(np.arange(self.env.customers_per_round) + 0.5, [poisson.pmf(i, mu=estimated_function(x=5, t=5)) for i in range(self.env.customers_per_round)])
             plt.title("Probabilites for price=5, t=5")
             plt.savefig(f"{self.save_plot_dir}/probabilities_{self.n}_middle")
             plt.close()
 
             plt.figure()
-            plt.hist(poisson.rvs(mu=estimated_function(x=1, t=10), size=100000), range=(0, 10), density=True, edgecolor='black')
-            plt.plot(np.arange(10) + 0.5, [self.env.get_event_p(i, 1, [10]) for i in range(10)])
-            plt.plot(np.arange(10) + 0.5, [poisson.pmf(i, mu=estimated_function(x=1, t=10)) for i in range(10)])
+            mu = estimated_function(x=1, t=10) if estimated_function(x=1, t=10) > 0 else 0
+            plt.hist(poisson.rvs(mu=mu), range=(0, self.env.customers_per_round), density=True, edgecolor='black')
+            plt.plot(np.arange(self.env.customers_per_round) + 0.5, [self.env.get_event_p(i, 1, [10]) for i in range(self.env.customers_per_round)])
+            plt.plot(np.arange(self.env.customers_per_round) + 0.5, [poisson.pmf(i, mu=estimated_function(x=1, t=10)) for i in range(self.env.customers_per_round)])
             plt.title("Probabilites for price=1, t=10")
             plt.savefig(f"{self.save_plot_dir}/probabilities_{self.n}_high")
             plt.close()
 
             plt.figure()
             mu = estimated_function(x=9, t=2) if estimated_function(x=9, t=2) > 0 else 0
-            plt.hist(poisson.rvs(mu=mu, size=100000), range=(0, 10), density=True, edgecolor='black')
-            plt.plot(np.arange(10) + 0.5, [self.env.get_event_p(i, 9, [2]) for i in range(10)])
-            plt.plot(np.arange(10) + 0.5, [poisson.pmf(i, mu=estimated_function(x=9, t=2)) for i in range(10)])
+            plt.hist(poisson.rvs(mu=mu, size=100000), range=(0, self.env.customers_per_round), density=True, edgecolor='black')
+            plt.plot(np.arange(self.env.customers_per_round) + 0.5, [self.env.get_event_p(i, 9, [2]) for i in range(self.env.customers_per_round)])
+            plt.plot(np.arange(self.env.customers_per_round) + 0.5, [poisson.pmf(i, mu=estimated_function(x=9, t=2)) for i in range(self.env.customers_per_round)])
             plt.title("Probabilites for price=9, t=2")
             plt.savefig(f"{self.save_plot_dir}/probabilities_{self.n}_low")
             plt.close()
