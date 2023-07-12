@@ -14,7 +14,7 @@ sys.path.append('..')
 
 discrete_env_duopoly = AirlineDuopoly(continuous_action_space=False)
 cont_env_duopoly = AirlineDuopoly(continuous_action_space=True)
-
+print(calculate_perfect_policy(discrete_env_duopoly))
 perfect_policy, perfect_value, perfect_reward = calculate_perfect_policy(discrete_env_duopoly)
 
 

@@ -85,19 +85,21 @@ class AirlineEnvironment(gym.Env):
 class AirlineDuopoly(AirlineEnvironment):
     def __init__(self, continuous_action_space=True) -> None:
         super().__init__(continuous_action_space)
-        self.initial_state = self.initial_state = [0, self.flight_capacity - 1, self.flight_capacity - 1]
+        self.initial_state = self.initial_state = [0, self.flight_capacity - 1, self.flight_capacity - 1, 0, 0]
         self.observation_space = MultiDiscrete(
-            [self.booking_time, self.flight_capacity])
+            [self.booking_time, self.flight_capacity, self.flight_capacity, self.max_price, self.max_price])
 
     def get_p_dist(self, a, timestep):
         p_1 = (1 - self.transform_action(a[0]) / self.max_price) * (1 + timestep) / self.booking_time
         p_2 = (1 - self.transform_action(a[1]) / self.max_price) * (1 + timestep) / self.booking_time
         p_3 = 1 - p_1 - p_2
         p = softmax([p_1, p_2, p_3])
+        print("p dist ", p)
         return p
 
     def get_event_p(self, i, a, s):
         p_dist = self.get_p_dist(a, s[0])
+        print("event p ", multinomial.pmf([i[0], i[1], self.customers_per_round - i[0] - i[1]], self.customers_per_round, p_dist))
         return multinomial.pmf([i[0], i[1], self.customers_per_round - i[0] - i[1]], self.customers_per_round, p_dist)
 
     def sample_event(self, a, s):
@@ -110,25 +112,26 @@ class AirlineDuopoly(AirlineEnvironment):
     def get_reward(self, i, a, s):
         reward_1 = super().get_reward(i[0], a[0], s)
         reward_2 = super().get_reward(i[1], a[1], s)
+        print("rewards ", [reward_1, reward_2])
         return [reward_1, reward_2]
 
     def transit_state(self, i, a, s):
-        return [s[0] + 1, max(0, s[1] - i[0]), max(0, s[2] - i[1])]
+        print("next state is ", [s[0] + 1, max(0, s[1] - i[0]), max(0, s[2] - i[1]), a[0], a[1]])
+        return [s[0] + 1, max(0, s[1] - i[0]), max(0, s[2] - i[1]), a[0], a[1]]
 
     def step(self, a_player):
-        a = [a_player[0] if isinstance(a_player, np.ndarray) else a_player, self.rule_based_competitor()]
+        a = [a_player[0] if isinstance(a_player, np.ndarray) else a_player, self.rule_based_competitor(self.s)]
         i = self.sample_event(a, self.s)
         rewards = self.get_reward(i, a, self.s)
         self.s = self.transit_state(i, a, self.s)
-        output_dict = {}
-        output_dict["comp/reward_per_step"] = rewards[1]
+        output_dict = {"comp/reward_per_step": rewards[1]}
 
         return self.s, rewards[0], self.s[0] == self.booking_time - 1, output_dict
 
-    def rule_based_competitor(self):
-        if self.s[0] < 6:
+    def rule_based_competitor(self, s):
+        if s[0] < 6:
             a = 16
-        elif self.s[0] > 6 and self.s[0] > 8:
+        elif s[0] > 6 and self.s[0] > 8:
             a = 15
         else:
             a = 13

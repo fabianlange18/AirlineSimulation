@@ -5,7 +5,7 @@ from airline_environment import AirlineEnvironment, AirlineDuopoly
 
 
 def simulation_run_monopoly(policy, model_name, episodes):
-    env = AirlineEnvironment()
+    env = AirlineDuopoly()
 
     env.reset()
     state = env.s
