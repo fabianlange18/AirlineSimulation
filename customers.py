@@ -8,16 +8,20 @@ class Customers():
         self.customers = customers
         self.max_price = max_price
         self.booking_time = booking_time
-    
+
+    # 0. Lecture
+    def calculate_p_lecture(self, a, timestep):
+        return (1 - a / self.max_price) * (1 + timestep) / self.booking_time
     
     # 1. Rational Customer
     def calculate_p_rational(self, a, timestep):
-        return (1 - a / self.max_price) * (1 + timestep) / self.booking_time
+        return (1 - a / self.max_price)
     
     # 2. Family
     def calculate_p_family(self, a, timestep):
         time_factor = np.power(np.e, (- 1 / 2) * np.power(((timestep - self.booking_time / 2) / 1), 2))
-        return (1 - a / self.max_price) * time_factor
+        price_factor = 0.75 - 0.75 * a / self.max_price
+        return price_factor * time_factor
     
     # 3. Business Customer
     def calculate_p_business(self, a, timestep):
@@ -35,6 +39,9 @@ class Customers():
     def calculate_p(self, a, timestep):
         p = 0
         counter = 0.0
+        if 'lecture' in self.customers:
+            p+= self.calculate_p_lecture(a, timestep)
+            counter += 1
         if 'rational' in self.customers:
             p+= self.calculate_p_rational(a, timestep)
             counter += 1
