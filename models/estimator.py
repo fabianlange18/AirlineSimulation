@@ -66,7 +66,7 @@ class Estimator():
         X_train, X_test, Y_train, Y_test = train_test_split(X, Y, test_size=0.2)
 
         # Regression
-        regression = Lasso()
+        regression = LinearRegression()
         regression.fit(X_train, Y_train)
 
         Y_pred = regression.predict(X_test)
@@ -85,13 +85,14 @@ class Estimator():
             [f.write(f'{round(coef, 4)}  ') for coef in regression.coef_]
             f.write(f"\nIntercept: {regression.intercept_}\n")
             f.write(f"MSE: {mse}\n\n")
+            # f.write(f'{self.n}, {mse}\n')
             f.close()
 
             x_scale = np.arange(self.env.max_price + 1)
             t_scale = np.arange(self.env.booking_time + 1)
 
             fig = plt.figure(figsize=(12, 4))
-            ax1 = fig.add_subplot(131, projection='3d')
+            ax1 = fig.add_subplot(144, projection='3d')
             ax1.scatter(x, t, Y, s=1)
 
             x_grid, y_grid = np.meshgrid(np.linspace(0, self.env.max_price, self.env.max_price), np.linspace(0, self.env.booking_time, self.env.booking_time))
@@ -113,14 +114,14 @@ class Estimator():
             ax1.set_zlabel('y')
             ax1.set_title("Fitted Probabilities")
 
-            ax2 = fig.add_subplot(132)
+            ax2 = fig.add_subplot(142)
             ax2.plot(x_scale, estimated_function(x=x_scale, t=0), color='black')
             ax2.plot(x_scale, estimated_function(x=x_scale, t=self.env.booking_time / 2), color='black', linestyle=':')
             ax2.plot(x_scale, estimated_function(x=x_scale, t=self.env.booking_time), color='black')
             ax2.set_title(f'Price Factor')
             ax2.set_ylim(0, self.env.customers_per_round)
             
-            ax3 = fig.add_subplot(133)
+            ax3 = fig.add_subplot(141)
             ax3.plot(t_scale, estimated_function(x=0, t=t_scale), color='blue')
             ax3.plot(t_scale, estimated_function(x=self.env.max_price / 2, t=t_scale), color='blue', linestyle=':')
             ax3.plot(t_scale, estimated_function(x=self.env.max_price, t=t_scale), color='blue')
@@ -128,15 +129,19 @@ class Estimator():
             ax3.set_ylim(0, self.env.customers_per_round)
 
             plt.savefig(f"{self.save_plot_dir}/probabilities_{self.n}")
-            plt.show()
             plt.close()
 
             fig = plt.figure(figsize=(12, 4))
-            ax1 = fig.add_subplot(131, projection='3d')
+            ax1 = fig.add_subplot(144, projection='3d')
 
             def optimal_function(x, t):
                 result = self.env.calculate_p(x, t) * self.env.customers_per_round
-                return np.full_like(x_scale, result) if np.isscalar(result) else result
+                if np.isscalar(result) and np.isscalar(x):
+                    return np.full_like(t_scale, result)
+                elif np.isscalar(result) and np.isscalar(t):
+                    return np.full_like(x_scale, result)
+                else:
+                    return result
 
             x_grid, y_grid = np.meshgrid(np.linspace(0, self.env.max_price, self.env.max_price), np.linspace(0, self.env.booking_time, self.env.booking_time))
             z_grid = optimal_function(x_grid, y_grid)
@@ -154,16 +159,16 @@ class Estimator():
             ax1.set_xlabel('x')
             ax1.set_ylabel('t')
             ax1.set_zlabel('y')
-            ax1.set_title("Real Probabilities")
+            # ax1.set_title("Real Probabilities")
 
-            ax2 = fig.add_subplot(132)
+            ax2 = fig.add_subplot(142)
             ax2.plot(x_scale, optimal_function(x=x_scale, t=0), color='black')
             ax2.plot(x_scale, optimal_function(x=x_scale, t=self.env.booking_time / 2), color='black', linestyle=":")
             ax2.plot(x_scale, optimal_function(x=x_scale, t=self.env.booking_time), color='black')
             ax2.set_title(f'Price Factor')
             ax2.set_ylim(0, self.env.customers_per_round)
             
-            ax3 = fig.add_subplot(133)
+            ax3 = fig.add_subplot(141)
             ax3.plot(t_scale, optimal_function(x=0, t=t_scale), color='blue')
             ax3.plot(t_scale, optimal_function(x=self.env.max_price / 2, t=t_scale), color='blue', linestyle=':')
             ax3.plot(t_scale, optimal_function(x=self.env.max_price, t=t_scale), color='blue')
@@ -171,35 +176,29 @@ class Estimator():
             ax3.set_ylim(0, self.env.customers_per_round)
 
             plt.savefig(f"{self.save_plot_dir}/real_probabilities")
-            plt.show()
             plt.close()
 
 
-            plt.figure()
-            mu = estimated_function(x=5, t=5) if estimated_function(x=5, t=5) > 0 else 0
-            plt.hist(poisson.rvs(mu=mu), range=(0, self.env.customers_per_round), density=True, edgecolor='black')
-            plt.plot(np.arange(self.env.customers_per_round) + 0.5, [self.env.get_event_p(i, 5, [5]) for i in range(self.env.customers_per_round)])
-            plt.plot(np.arange(self.env.customers_per_round) + 0.5, [poisson.pmf(i, mu=estimated_function(x=5, t=5)) for i in range(self.env.customers_per_round)])
-            plt.title("Probabilites for price=5, t=5")
-            plt.savefig(f"{self.save_plot_dir}/probabilities_{self.n}_middle")
-            plt.close()
+            fig, (ax3, ax1, ax2) = plt.subplots(1, 3, sharey=True)
+            # mu = estimated_function(x=5, t=5) if estimated_function(x=5, t=5) > 0 else 0
+            # plt.hist(poisson.rvs(mu=estimated_function(x=5, t=5)), range=(0, self.env.customers_per_round), density=True, edgecolor='black')
+            ax1.plot(np.arange(self.env.customers_per_round) + 0.5, [self.env.get_event_p(i, 5, [5]) for i in range(self.env.customers_per_round)], label='actual')
+            ax1.plot(np.arange(self.env.customers_per_round) + 0.5, [poisson.pmf(i, mu=estimated_function(x=5, t=5)) for i in range(self.env.customers_per_round)], label='prediction')
+            ax1.set_title("price=5, t=5")
 
-            plt.figure()
-            mu = estimated_function(x=1, t=10) if estimated_function(x=1, t=10) > 0 else 0
-            plt.hist(poisson.rvs(mu=mu), range=(0, self.env.customers_per_round), density=True, edgecolor='black')
-            plt.plot(np.arange(self.env.customers_per_round) + 0.5, [self.env.get_event_p(i, 1, [10]) for i in range(self.env.customers_per_round)])
-            plt.plot(np.arange(self.env.customers_per_round) + 0.5, [poisson.pmf(i, mu=estimated_function(x=1, t=10)) for i in range(self.env.customers_per_round)])
-            plt.title("Probabilites for price=1, t=10")
-            plt.savefig(f"{self.save_plot_dir}/probabilities_{self.n}_high")
-            plt.close()
+            # mu = estimated_function(x=1, t=10) if estimated_function(x=1, t=10) > 0 else 0
+            # plt.hist(poisson.rvs(mu=estimated_function(x=1, t=10)), range=(0, self.env.customers_per_round), density=True, edgecolor='black')
+            ax2.plot(np.arange(self.env.customers_per_round) + 0.5, [self.env.get_event_p(i, 1, [9]) for i in range(self.env.customers_per_round)], label='actual')
+            ax2.plot(np.arange(self.env.customers_per_round) + 0.5, [poisson.pmf(i, mu=estimated_function(x=1, t=9)) for i in range(self.env.customers_per_round)], label='prediction')
+            ax2.set_title("price=1, t=9")
 
-            plt.figure()
-            mu = estimated_function(x=9, t=2) if estimated_function(x=9, t=2) > 0 else 0
-            plt.hist(poisson.rvs(mu=mu, size=100000), range=(0, self.env.customers_per_round + 1), density=True, edgecolor='black')
-            plt.plot(np.arange(self.env.customers_per_round + 1) + 0.5, [self.env.get_event_p(i, 9, [2]) for i in range(self.env.customers_per_round + 1)])
-            plt.plot(np.arange(self.env.customers_per_round + 1) + 0.5, [poisson.pmf(i, mu=estimated_function(x=9, t=2)) for i in range(self.env.customers_per_round + 1)])
-            plt.title("Probabilites for price=9, t=2")
-            plt.savefig(f"{self.save_plot_dir}/probabilities_{self.n}_low")
+            # mu = estimated_function(x=9, t=2) if estimated_function(x=9, t=2) > 0 else 0
+            # plt.hist(poisson.rvs(mu=estimated_function(x=9, t=2), size=100000), range=(0, self.env.customers_per_round + 1), density=True, edgecolor='black')
+            ax3.plot(np.arange(self.env.customers_per_round + 1) + 0.5, [self.env.get_event_p(i, 9, [2]) for i in range(self.env.customers_per_round + 1)], label='actual')
+            ax3.plot(np.arange(self.env.customers_per_round + 1) + 0.5, [poisson.pmf(i, mu=estimated_function(x=9, t=2)) for i in range(self.env.customers_per_round + 1)], label='prediction')
+            ax3.set_title("price=9, t=2")
+            plt.legend()
+            plt.savefig(f"{self.save_plot_dir}/comparison_{self.n}")
             plt.close()
 
         return estimated_function, mse

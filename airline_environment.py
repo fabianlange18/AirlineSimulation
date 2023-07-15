@@ -15,12 +15,12 @@ class AirlineEnvironment(gym.Env):
     def __init__(self, continuous_action_space = True):
 
         # Observation Space
-        self.booking_time = 50
-        self.flight_capacity = 4
+        self.booking_time = 20
+        self.flight_capacity = 20
         self.observation_space = MultiDiscrete([self.booking_time + 1, self.flight_capacity + 1])
 
         # Action Space
-        self.max_price = 9
+        self.max_price = 20
         self.step_size = 1
         self.continuous_action_space = continuous_action_space
 
@@ -29,8 +29,8 @@ class AirlineEnvironment(gym.Env):
 
 
         # Event Space
-        self.customers = Customers(['business', 'family', 'early_booking', 'rational', 'party'], self.max_price, self.booking_time)
-        self.customers_per_round = 15
+        self.customers = Customers(['rational', 'family', 'business', 'early_booking', 'party'], self.max_price, self.booking_time)
+        self.customers_per_round = 5
         self.event_space = Discrete(self.customers_per_round + 1)
 
         self.stochastic_customers = True

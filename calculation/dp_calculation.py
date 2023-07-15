@@ -53,7 +53,7 @@ def calculate_perfect_policy(env, estimator = None, print_policy = False, just_r
             perfect_rewards = []
             for _ in range(100):
                 perfect_rewards.append(simulation_run(perfect_policy, '0_DP_Optimal', '0'))
-            perfect_reward = np.mean(perfect_rewards)
+            perfect_reward = np.max(perfect_rewards)
         else:
             perfect_reward = simulation_run(perfect_policy, '0_DP_Optimal', '0')
 
