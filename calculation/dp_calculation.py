@@ -16,7 +16,7 @@ def timeout_handler(signum, frame):
 def calculate_perfect_policy(env, estimator = None, print_policy = False, just_result=False):
 
     if just_result:
-        bi = choose_model('bi', env)
+        bi = choose_model('bi_est', env, estimator) if estimator else choose_model('bi', env)
         bi_solved = calculation_time_track(bi, "Backward Induction")
         perfect_reward = simulation_run(bi.policy, plot=False)
         return bi.policy, bi.value, perfect_reward
