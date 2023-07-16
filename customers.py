@@ -28,7 +28,7 @@ class Customers():
     
     # 4. Early Booking Customer
     def calculate_p_early_booking(self, a, timestep):
-        price_factor = 0.75 - 0.75 * a / (self.max_price / 0.666666)
+        price_factor = 0.75 - 0.75 * a / (3 * self.max_price / 2)
         time_factor = (3. / 4.) / (timestep + 1) + 0.25
         return price_factor * time_factor
     

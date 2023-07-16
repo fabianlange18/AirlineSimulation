@@ -2,6 +2,8 @@ from models.choose import choose_model
 from util.colormap import plot_colormap
 from simulation import simulation_run
 
+import numpy as np
+
 def adp_ql_calculation(model_name, env, episodes, estimator=None, compare_policy = None, compare_value = None, print_policy = False):
 
     steps = env.booking_time * episodes
@@ -24,6 +26,11 @@ def adp_ql_calculation(model_name, env, episodes, estimator=None, compare_policy
         print(f"\nApproximate Policy by {model_name} after {episodes} episodes:")
         print(model.policy)
 
-    reward = simulation_run(model.policy, model_name, episodes)
+    rewards = []
+    
+    for _ in range(100):
+        rewards.append(simulation_run(model.policy, model_name, episodes))
+    
+    reward = np.mean(rewards)
 
     return model.policy, model.value, reward

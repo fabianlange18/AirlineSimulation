@@ -15,8 +15,8 @@ class AirlineEnvironment(gym.Env):
     def __init__(self, continuous_action_space = True):
 
         # Observation Space
-        self.booking_time = 20
-        self.flight_capacity = 20
+        self.booking_time = 10
+        self.flight_capacity = 10
         self.observation_space = MultiDiscrete([self.booking_time + 1, self.flight_capacity + 1])
 
         # Action Space
@@ -27,9 +27,8 @@ class AirlineEnvironment(gym.Env):
         self.action_space = Box(low = 0, high = self.max_price, shape = (1,)) if self.continuous_action_space else Discrete(int(self.max_price / self.step_size) + 1)
         self.action_space_max = int(self.max_price / self.step_size)
 
-
         # Event Space
-        self.customers = Customers(['rational', 'family', 'business', 'early_booking', 'party'], self.max_price, self.booking_time)
+        self.customers = Customers(['rational', 'family', 'business', 'party', 'early_booking'], self.max_price, self.booking_time)
         self.customers_per_round = 5
         self.event_space = Discrete(self.customers_per_round + 1)
 
@@ -48,7 +47,7 @@ class AirlineEnvironment(gym.Env):
 
 
     def calculate_p(self, a, timestep):
-        _a = self.transform_action(a)
+        _a = self.transform_action(a) if np.isscalar(a) else a
         return self.customers.calculate_p(_a, timestep)
 
 

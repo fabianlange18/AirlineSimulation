@@ -5,6 +5,9 @@ from models.solver import Solver
 class InitialValueCalculator(Solver):
 
     def calculate_initial_value(self, policy):
+
+        self.reset()
+
         delta = self.max_delta
         while delta >= self.max_delta:
             delta = 0

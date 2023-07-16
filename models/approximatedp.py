@@ -5,6 +5,7 @@ from .solver import Solver
 
 class ADP(Solver):
     def solve(self, steps, prog_bar = True):
+        self.reset()
         
         s = self.env.s
         if prog_bar:

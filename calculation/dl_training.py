@@ -32,7 +32,12 @@ def dl_training(model_name, env, episodes, wandb = False, compare_policy = None,
     if compare_policy is not None:
         plot_colormap(policy, compare_policy, model_name, episodes, title='Policy')
 
-    reward = simulation_run(policy, model_name, episodes)
+    rewards = []
+    
+    for _ in range(100):
+        rewards.append(simulation_run(policy, model_name, episodes))
+    
+    reward = np.mean(rewards)
 
     if print_policy:
         print(f"\nApproximate Policy by {model_name} after {episodes} episodes:")

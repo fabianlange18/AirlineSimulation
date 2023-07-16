@@ -7,7 +7,7 @@ from simulation import simulation_run
 
 from util.colormap import plot_policy
 
-timeout = 600
+timeout = 300
 
 def timeout_handler(signum, frame):
     raise TimeoutError(f"Function takes longer than {timeout} seconds.")
@@ -53,7 +53,7 @@ def calculate_perfect_policy(env, estimator = None, print_policy = False, just_r
             perfect_rewards = []
             for _ in range(100):
                 perfect_rewards.append(simulation_run(perfect_policy, '0_DP_Optimal', '0'))
-            perfect_reward = np.max(perfect_rewards)
+            perfect_reward = np.mean(perfect_rewards)
         else:
             perfect_reward = simulation_run(perfect_policy, '0_DP_Optimal', '0')
 

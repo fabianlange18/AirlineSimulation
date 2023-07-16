@@ -105,9 +105,9 @@ class Estimator():
             ax1.plot(x_scale, [0] * len(x_scale), estimated_function(x=x_scale, t=0), color='black')
             ax1.plot([0] * len(t_scale), t_scale, estimated_function(x=0, t=t_scale), color='blue')
             ax1.plot(x_scale, [self.env.booking_time / 2] * len(x_scale), estimated_function(x=x_scale, t=self.env.booking_time / 2), color='black', linestyle=':')
-            ax1.plot([self.env.max_price / 2] * len(t_scale), t_scale, estimated_function(x=self.env.max_price / 2, t=t_scale), color='blue', linestyle=':')
+            ax1.plot([self.env.max_price / 2] * len(t_scale), t_scale, estimated_function(x=self.env.action_space_max / 2, t=t_scale), color='blue', linestyle=':')
             ax1.plot(x_scale, [self.env.booking_time] * len(x_scale), estimated_function(x=x_scale, t=self.env.booking_time), color='black')
-            ax1.plot([self.env.max_price] * len(t_scale), t_scale, estimated_function(x=self.env.max_price, t=t_scale), color='blue')
+            ax1.plot([self.env.max_price] * len(t_scale), t_scale, estimated_function(x=self.env.action_space_max, t=t_scale), color='blue')
 
             ax1.set_xlabel('x')
             ax1.set_ylabel('t')
@@ -123,8 +123,8 @@ class Estimator():
             
             ax3 = fig.add_subplot(141)
             ax3.plot(t_scale, estimated_function(x=0, t=t_scale), color='blue')
-            ax3.plot(t_scale, estimated_function(x=self.env.max_price / 2, t=t_scale), color='blue', linestyle=':')
-            ax3.plot(t_scale, estimated_function(x=self.env.max_price, t=t_scale), color='blue')
+            ax3.plot(t_scale, estimated_function(x=self.env.action_space_max / 2, t=t_scale), color='blue', linestyle=':')
+            ax3.plot(t_scale, estimated_function(x=self.env.action_space_max, t=t_scale), color='blue')
             ax3.set_title(f'Time Factor')
             ax3.set_ylim(0, self.env.customers_per_round)
 
@@ -152,9 +152,9 @@ class Estimator():
             ax1.plot(x_scale, [0] * len(x_scale), optimal_function(x=x_scale, t=0), color='black')
             ax1.plot([0] * len(t_scale), t_scale, optimal_function(x=0, t=t_scale), color='blue')
             ax1.plot(x_scale, [self.env.booking_time / 2] * len(x_scale), optimal_function(x=x_scale, t=self.env.booking_time / 2), color='black', linestyle=":")
-            ax1.plot([self.env.max_price / 2] * len(t_scale), t_scale, optimal_function(x=self.env.max_price / 2, t=t_scale), color='blue', linestyle=":")
+            ax1.plot([self.env.max_price / 2] * len(t_scale), t_scale, optimal_function(x=self.env.action_space_max / 2, t=t_scale), color='blue', linestyle=":")
             ax1.plot(x_scale, [self.env.booking_time] * len(x_scale), optimal_function(x=x_scale, t=self.env.booking_time), color='black')
-            ax1.plot([self.env.max_price] * len(t_scale), t_scale, optimal_function(x=self.env.max_price, t=t_scale), color='blue')
+            ax1.plot([self.env.max_price] * len(t_scale), t_scale, optimal_function(x=self.env.action_space_max, t=t_scale), color='blue')
 
             ax1.set_xlabel('x')
             ax1.set_ylabel('t')
@@ -170,8 +170,8 @@ class Estimator():
             
             ax3 = fig.add_subplot(141)
             ax3.plot(t_scale, optimal_function(x=0, t=t_scale), color='blue')
-            ax3.plot(t_scale, optimal_function(x=self.env.max_price / 2, t=t_scale), color='blue', linestyle=':')
-            ax3.plot(t_scale, optimal_function(x=self.env.max_price, t=t_scale), color='blue')
+            ax3.plot(t_scale, optimal_function(x=self.env.action_space_max / 2, t=t_scale), color='blue', linestyle=':')
+            ax3.plot(t_scale, optimal_function(x=self.env.action_space_max, t=t_scale), color='blue')
             ax3.set_title(f'Time Factor')
             ax3.set_ylim(0, self.env.customers_per_round)
 
