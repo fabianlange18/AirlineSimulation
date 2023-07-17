@@ -15,8 +15,8 @@ class AirlineEnvironment(gym.Env):
     def __init__(self, continuous_action_space = True):
 
         # Observation Space
-        self.booking_time = 100
-        self.flight_capacity = 100
+        self.booking_time = 10
+        self.flight_capacity = 10
         self.observation_space = MultiDiscrete([self.booking_time + 1, self.flight_capacity + 1])
 
         # Action Space
@@ -73,7 +73,7 @@ class AirlineEnvironment(gym.Env):
     
 
     def step(self, a):
-        a = a[0] if isinstance(a, np.ndarray) else a
+        a = int(a[0]) if isinstance(a, np.ndarray) else int(a)
         i = self.sample_event(a, self.s)
         reward = self.get_reward(i, a, self.s)
         self.s = self.transit_state(i, a, self.s)
