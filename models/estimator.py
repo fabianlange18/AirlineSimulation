@@ -6,7 +6,7 @@ from scipy.stats import poisson
 from sklearn.linear_model import LinearRegression
 from sklearn.linear_model import Ridge
 from sklearn.linear_model import Lasso
-from sklearn.metrics import mean_squared_error
+from sklearn.metrics import mean_squared_error, r2_score
 from sklearn.model_selection import train_test_split
 
 
@@ -71,6 +71,7 @@ class Estimator():
 
         Y_pred = regression.predict(X_test)
         mse = mean_squared_error(Y_test, Y_pred)
+        r2 = r2_score(Y_test, Y_pred)
 
         def estimated_function(x, t):
             coef = regression.coef_
@@ -84,7 +85,8 @@ class Estimator():
             f.write("Coefficients: t, x, t_square, x_square, t_root+1, x_root+1, t_log+1, x_log+1, t_x\n")
             [f.write(f'{round(coef, 4)}  ') for coef in regression.coef_]
             f.write(f"\nIntercept: {regression.intercept_}\n")
-            f.write(f"MSE: {mse}\n\n")
+            f.write(f"MSE: {mse}\n")
+            f.write(f"R2: {r2}\n\n")
             # f.write(f'{self.n}, {mse}\n')
             f.close()
 
