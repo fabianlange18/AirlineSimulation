@@ -16,23 +16,23 @@ class DuopolyEnvironment(gym.Env):
     def __init__(self, continuous_action_space = True):
 
         # Action Space
-        self.max_price = 5
-        self.step_size = 1
+        self.max_price = 50
+        self.step_size = 10
         self.continuous_action_space = continuous_action_space
         
-        self.action_space = Box(low = 0, high = self.max_price, shape = (1,)) if self.continuous_action_space else Discrete(int(self.max_price / self.step_size) + 1)
         self.action_space_max = int(self.max_price / self.step_size)
+        self.action_space = Box(low = 0, high = self.action_space_max, shape = (1,)) if self.continuous_action_space else Discrete(self.action_space_max + 1)
 
         # Observation Space
-        self.booking_time = 5
+        self.booking_time = 10
         self.flight_capacity = 5
         # we cannot take our own price as a value of the state space, right?
         self.observation_space = MultiDiscrete([self.booking_time + 1, self.flight_capacity + 1, self.flight_capacity + 1, self.action_space_max + 1])
 
 
         # Event Space
-        self.customers = Customers(['family'], self.max_price, self.booking_time)
-        self.customers_per_round = 5
+        self.customers = Customers(['lecture'], self.max_price, self.booking_time)
+        self.customers_per_round = 1
         self.event_space = MultiDiscrete([self.customers_per_round + 1, self.customers_per_round + 1, self.customers_per_round + 1])
 
         self.stochastic_customers = True
@@ -58,9 +58,9 @@ class DuopolyEnvironment(gym.Env):
         own_p = self.calculate_p_cust(a, s[0])
         comp_p = self.calculate_p_cust(s[3], s[0])
         if self.edgeworth:
-            p = [1, 0, 0] if own_p > comp_p else [0, 1, 0]
+            p = [0.5, 0.5, 0] if own_p == comp_p else [1, 0, 0] if own_p > comp_p else [0, 1, 0]
         else:
-            p = softmax([own_p, comp_p, max(1 - own_p - comp_p, 0)])
+            p = softmax([own_p, comp_p, 2 - own_p - comp_p])
         return p
 
 
@@ -86,7 +86,7 @@ class DuopolyEnvironment(gym.Env):
     
 
     def transit_state(self, i, a, s):
-        comp_price = a - 1 if a > 2 else 4
+        comp_price = self.competitor_reaction(a, s)
         return [s[0] + 1, max(0, s[1] - i[0]), max(0, s[2] - i[1]), comp_price]
     
 
@@ -103,3 +103,8 @@ class DuopolyEnvironment(gym.Env):
     def reset(self):
         self.s = self.initial_state
         return self.initial_state
+    
+
+    def comp_reaction(self, agent_price, state):
+        # Insert different competitor strategies here
+        return agent_price - 1 if agent_price > 2 else 4
