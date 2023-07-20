@@ -4,7 +4,7 @@ import matplotlib.cm as cm
 
 def plot_colormap(actual, compare_value, model_name, episodes, title, print_labels = False):
     diff = np.abs(actual - compare_value).T
-    plt.imshow(diff, cm.get_cmap('RdBu').reversed())
+    plt.imshow(diff, cm.get_cmap('RdBu').reversed(), aspect='auto')
     plt.colorbar()
 
     if print_labels:
@@ -21,7 +21,7 @@ def plot_colormap(actual, compare_value, model_name, episodes, title, print_labe
 
 def plot_policy(actual, model_name, episodes, title, print_labels = True):
     diff = np.abs(actual - np.zeros_like(actual)).T
-    plt.imshow(actual.T, cm.get_cmap('RdBu').reversed())
+    plt.imshow(actual.T, cm.get_cmap('RdBu').reversed(), aspect='auto')
     plt.colorbar()
 
     if print_labels:

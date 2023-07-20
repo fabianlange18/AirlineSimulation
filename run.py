@@ -1,4 +1,5 @@
 from airline_environment import AirlineEnvironment
+from models.estimator import Estimator
 
 from calculation.dp_calculation import calculate_perfect_policy
 from calculation.adp_ql_calculation import adp_ql_calculation
@@ -15,12 +16,14 @@ sys.path.append('..')
 discrete_env = AirlineEnvironment(continuous_action_space=False)
 cont_env = AirlineEnvironment(continuous_action_space=True)
 
-perfect_policy, perfect_value, perfect_reward = calculate_perfect_policy(discrete_env)
-
 init_value_calculator = InitialValueCalculator(discrete_env)
 
-models_array = ['adp', 'ql', 'dqn', 'a2c', 'td3', 'ppo', 'ddpg', 'sac']
-episodes_array = [100, 500, 1000]
+perfect_policy, perfect_value, perfect_reward = calculate_perfect_policy(discrete_env)
+assert abs(perfect_value[*discrete_env.initial_state] - init_value_calculator.calculate_initial_value(perfect_policy)) < 0.1
+
+models_array = ['dp_est', 'adp', 'adp_est', 'ql', 'ddpg', 'sac', 'ppo']
+# models_array = ['adp', 'ql', 'dqn', 'ddpg', 'td3', 'a2c', 'sac', 'ppo']
+episodes_array = [1, 10, 50, 100]
 
 results = {model: {'r_means': [], 'r_std': [], 'v_means': [], 'v_std': []} for model in models_array}
 
@@ -29,23 +32,29 @@ n_runs = 5
 for episodes in episodes_array:
 
     intermediate_results = {model: {'r': [], 'v': []} for model in models_array}
-
+    
     for _ in range(n_runs):
 
+        estimator = Estimator(discrete_env, n=episodes*discrete_env.booking_time, plot=True)
+        
         for model_name in models_array:
-
-            if model_name in ['adp', 'ql']:
-
-                policy, _, reward = adp_ql_calculation(model_name, discrete_env, episodes, perfect_policy,
-                                                       perfect_value)
+            
+            if model_name == 'dp_est':
+                policy, value, reward = calculate_perfect_policy(discrete_env, estimator, just_result=True)
+                # does not hold True because init_value_calculator uses the real demand probability
+                # assert value[*discrete_env.initial_state] == init_value_calculator.calculate_initial_value(policy)
+            
+            elif model_name in ['adp', 'adp_est', 'ql']:
+                policy, _, reward = adp_ql_calculation(model_name, discrete_env, episodes, estimator, perfect_policy, perfect_value)
 
             elif model_name in ['ql', 'dqn', 'a2c', 'ppo']:
-
                 policy, reward = dl_training(model_name, discrete_env, episodes, compare_policy=perfect_policy)
 
             else:
-
                 policy, reward = dl_training(model_name, cont_env, episodes, compare_policy=perfect_policy)
+
+            discrete_env.reset()
+            cont_env.reset()
 
             intermediate_results[model_name]['r'].append(reward)
             intermediate_results[model_name]['v'].append(init_value_calculator.calculate_initial_value(policy))
@@ -56,39 +65,40 @@ for episodes in episodes_array:
         results[model_name]['v_means'].append(np.mean(intermediate_results[model_name]['v']))
         results[model_name]['v_std'].append(np.std(intermediate_results[model_name]['v']))
 
+
 n = len(episodes_array)
 k = len(models_array)
 r = np.arange(n)
 width = 0.8 / len(models_array)
 
 for i, model_name in enumerate(models_array):
-    plt.bar(r + i * width, results[model_name]['r_means'], width=width, label=model_name,
-            yerr=results[model_name]['r_std'])
+    plt.bar(r + i * width, results[model_name]['r_means'], width=width, label = model_name, yerr = results[model_name]['r_std'])
 
-plt.axhline(y=perfect_reward, color='black', linestyle='--')
+plt.axhline(y=perfect_reward, color='black', linestyle=':')
 
+plt.ylim(bottom=0)
 plt.xlabel("Episodes")
 plt.ylabel("Reward")
 plt.title(f"Reward per Method and #Training Episodes (n={n_runs})")
 
-plt.xticks(r + (k - 1) / 2 * width, episodes_array)
+plt.xticks(r + (k-1)/2 * width, episodes_array)
 plt.legend(loc='upper left', bbox_to_anchor=(1.04, 1))
 
 plt.savefig(f'./plots/summary_r', bbox_inches="tight")
 plt.close()
 
 for i, model_name in enumerate(models_array):
-    plt.bar(r + i * width, results[model_name]['v_means'], width=width, label=model_name,
-            yerr=results[model_name]['v_std'])
+    plt.bar(r + i * width, results[model_name]['v_means'], width=width, label = model_name, yerr = results[model_name]['v_std'])
 
 plt.axhline(y=perfect_value[*discrete_env.initial_state], color='black', linestyle='--')
 
+plt.ylim(bottom=0)
 plt.xlabel("Episodes")
-plt.ylabel("Initial Values")
-plt.title(f"Initial Values per Method and #Training Episodes (n={n_runs})")
+plt.ylabel("Expected Total Profit")
+plt.title(f"Expected Total Profit per Method and #Training Episodes (n={n_runs})")
 
-plt.xticks(r + (k - 1) / 2 * width, episodes_array)
+plt.xticks(r + (k-1)/2 * width, episodes_array)
 plt.legend(loc='upper left', bbox_to_anchor=(1.04, 1))
 
-plt.savefig(f'./plots/summary_v', bbox_inches="tight")
+plt.savefig(f'./plots/summary_er', bbox_inches="tight")
 plt.close()

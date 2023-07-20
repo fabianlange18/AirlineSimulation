@@ -1,5 +1,3 @@
-import numpy as np
-
 from .solver import Solver
 
 
@@ -16,12 +14,12 @@ class ValueIteration(Solver):
                 action_values = (
                     (a,
                     sum((
-                        self.env.get_event_p(i, a, s) * (self.env.get_reward(i, a, s) + self.gamma * 
+                        self.event_p(i, a, s) * (self.env.get_reward(i, a, s) + self.gamma * 
                                                          ( self.value[*self.env.transit_state(i, self.policy[*s], s)] if s[0] < self.env.booking_time - 1 else 0)
                                                          )
-                        for i in range(self.env.customers_per_round)
+                        for i in self.possible_events_array
                     )))
-                    for a in range(self.env.action_space_max)
+                    for a in range(self.env.action_space_max + 1)
                 )
                 max_a = max(action_values, key=lambda o: o[1])
                 self.value[*s] = max_a[1]

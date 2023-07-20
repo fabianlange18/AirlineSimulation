@@ -11,7 +11,7 @@ class QLearning(Solver):
         self.eps = 0.5
         # Use this variable to store the bellman error in every update.
         self.bellman_errors = []
-        self.q_value = np.zeros((*self.env.observation_space.nvec, self.env.action_space_max))
+        self.q_value = np.zeros((*self.env.observation_space.nvec, self.env.action_space_max + 1))
 
     def solve(self, steps):
         s = self.env.reset()

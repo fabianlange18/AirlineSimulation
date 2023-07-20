@@ -20,13 +20,13 @@ class PolicyIteration(Solver):
             action_values = [
                 (a,
                 sum((
-                    self.env.get_event_p(i, a, s) *
+                    self.event_p(i, a, s) *
                     (self.env.get_reward(i, a, s) + self.gamma * 
                      ( self.value[*self.env.transit_state(i, self.policy[*s], s)] if s[0] < self.env.booking_time - 1 else 0)
                      )
-                    for i in range(self.env.customers_per_round)
+                    for i in self.possible_events_array
                 )))
-                for a in range(self.env.action_space_max)
+                for a in range(self.env.action_space_max + 1)
             ]
             self.policy[*s] = max(action_values, key=lambda o: o[1])[0]
             p_instable = p_instable or (a != self.policy[*s])
@@ -40,9 +40,9 @@ class PolicyIteration(Solver):
             for s in self.possible_states_array:
                 v = self.value[*s]
                 self.value[*s] = sum((
-                    self.env.get_event_p(i, self.policy[*s], s) * (self.env.get_reward(i, self.policy[*s], s) + self.gamma * 
+                    self.event_p(i, self.policy[*s], s) * (self.env.get_reward(i, self.policy[*s], s) + self.gamma * 
                                                                    ( self.value[*self.env.transit_state(i, self.policy[*s], s)] if s[0] < self.env.booking_time - 1 else 0)
                                                                    )
-                    for i in range(self.env.customers_per_round)
+                    for i in self.possible_events_array
                 ))
                 delta = max(delta, abs(v - self.value[*s]))
