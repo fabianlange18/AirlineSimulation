@@ -20,12 +20,12 @@ class AirlineEnvironment(gym.Env):
         self.observation_space = MultiDiscrete([self.booking_time + 1, self.flight_capacity + 1])
 
         # Action Space
-        self.max_price = 20
-        self.step_size = 1
+        self.max_price = 21
+        self.step_size = 3
         self.continuous_action_space = continuous_action_space
 
-        self.action_space = Box(low = 0, high = self.max_price, shape = (1,)) if self.continuous_action_space else Discrete(int(self.max_price / self.step_size) + 1)
         self.action_space_max = int(self.max_price / self.step_size)
+        self.action_space = Box(low = 0, high = self.action_space_max, shape = (1,)) if self.continuous_action_space else Discrete(self.action_space_max + 1)
 
         # Event Space
         self.customers = Customers(['rational', 'family', 'business', 'party', 'early_booking'], self.max_price, self.booking_time)
