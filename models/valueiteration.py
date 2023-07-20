@@ -17,7 +17,7 @@ class ValueIteration(Solver):
                         self.event_p(i, a, s) * (self.env.get_reward(i, a, s) + self.gamma * 
                                                          ( self.value[*self.env.transit_state(i, self.policy[*s], s)] if s[0] < self.env.booking_time - 1 else 0)
                                                          )
-                        for i in range(self.env.customers_per_round + 1)
+                        for i in self.possible_events_array
                     )))
                     for a in range(self.env.action_space_max + 1)
                 )

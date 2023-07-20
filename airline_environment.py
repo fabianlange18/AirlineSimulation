@@ -30,9 +30,9 @@ class AirlineEnvironment(gym.Env):
         # Event Space
         self.customers = Customers(['rational', 'family', 'business', 'party', 'early_booking'], self.max_price, self.booking_time)
         self.customers_per_round = 5
-        self.event_space = Discrete(self.customers_per_round + 1)
+        self.event_space = MultiDiscrete([self.customers_per_round + 1, self.customers_per_round + 1])
 
-        self.stochastic_customers = True
+        self.stochastic_customers = False
 
         self.initial_state = [0, self.flight_capacity]
 
@@ -53,23 +53,26 @@ class AirlineEnvironment(gym.Env):
 
     def get_event_p(self, i, a, s):
         p = self.calculate_p(a, s[0])
-        return multinomial.pmf([i, self.customers_per_round - i], self.customers_per_round, [p, 1-p])
+        return multinomial.pmf(i, self.customers_per_round, [p, 1-p])
 
 
     def sample_event(self, a , s):
         p = self.calculate_p(a, s[0])
         if self.stochastic_customers:
-            return np.random.multinomial(self.customers_per_round, [p, 1-p])[0]
+            return np.random.multinomial(self.customers_per_round, [p, 1-p])
         else:
-            return int(self.customers_per_round * p)
+            i = []
+            i.append(int(self.customers_per_round * p))
+            i.append(self.customers_per_round - i[0])
+            return i
     
     
     def get_reward(self, i, a, s):
-        return self.transform_action(a) * min(i, s[1])
+        return self.transform_action(a) * min(i[0], s[1])
     
 
     def transit_state(self, i, a, s):
-        return [s[0] + 1, max(0, s[1] - i)]
+        return [s[0] + 1, max(0, s[1] - i[0])]
     
 
     def step(self, a):
@@ -78,7 +81,7 @@ class AirlineEnvironment(gym.Env):
         reward = self.get_reward(i, a, self.s)
         self.s = self.transit_state(i, a, self.s)
 
-        return self.s, reward, self.s[0] == self.booking_time - 1, {'i': i}
+        return self.s, reward, self.s[0] == self.booking_time - 1, {'i': i[0]}
 
 
     def reset(self):

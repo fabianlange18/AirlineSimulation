@@ -184,20 +184,20 @@ class Estimator():
             fig, (ax3, ax1, ax2) = plt.subplots(1, 3, sharey=True)
             # mu = estimated_function(x=5, t=5) if estimated_function(x=5, t=5) > 0 else 0
             # plt.hist(poisson.rvs(mu=estimated_function(x=5, t=5)), range=(0, self.env.customers_per_round), density=True, edgecolor='black')
-            ax1.plot(np.arange(self.env.customers_per_round) + 0.5, [self.env.get_event_p(i, 5, [5]) for i in range(self.env.customers_per_round)], label='actual')
-            ax1.plot(np.arange(self.env.customers_per_round) + 0.5, [poisson.pmf(i, mu=estimated_function(x=5, t=5)) for i in range(self.env.customers_per_round)], label='prediction')
+            ax1.plot(np.arange(self.env.customers_per_round) + 0.5, [self.env.get_event_p([i, self.env.customers_per_round - i], 5, [5]) for i in range(self.env.customers_per_round)], label='actual')
+            ax1.plot(np.arange(self.env.customers_per_round) + 0.5, [poisson.pmf([i, self.env.customers_per_round - i], mu=estimated_function(x=5, t=5)) for i in range(self.env.customers_per_round)], label='prediction')
             ax1.set_title("price=5, t=5")
 
             # mu = estimated_function(x=1, t=10) if estimated_function(x=1, t=10) > 0 else 0
             # plt.hist(poisson.rvs(mu=estimated_function(x=1, t=10)), range=(0, self.env.customers_per_round), density=True, edgecolor='black')
-            ax2.plot(np.arange(self.env.customers_per_round) + 0.5, [self.env.get_event_p(i, 1, [9]) for i in range(self.env.customers_per_round)], label='actual')
-            ax2.plot(np.arange(self.env.customers_per_round) + 0.5, [poisson.pmf(i, mu=estimated_function(x=1, t=9)) for i in range(self.env.customers_per_round)], label='prediction')
+            ax2.plot(np.arange(self.env.customers_per_round) + 0.5, [self.env.get_event_p([i, self.env.customers_per_round - i], 1, [9]) for i in range(self.env.customers_per_round)], label='actual')
+            ax2.plot(np.arange(self.env.customers_per_round) + 0.5, [poisson.pmf([i, self.env.customers_per_round - i], mu=estimated_function(x=1, t=9)) for i in range(self.env.customers_per_round)], label='prediction')
             ax2.set_title("price=1, t=9")
 
             # mu = estimated_function(x=9, t=2) if estimated_function(x=9, t=2) > 0 else 0
             # plt.hist(poisson.rvs(mu=estimated_function(x=9, t=2), size=100000), range=(0, self.env.customers_per_round + 1), density=True, edgecolor='black')
-            ax3.plot(np.arange(self.env.customers_per_round + 1) + 0.5, [self.env.get_event_p(i, 9, [2]) for i in range(self.env.customers_per_round + 1)], label='actual')
-            ax3.plot(np.arange(self.env.customers_per_round + 1) + 0.5, [poisson.pmf(i, mu=estimated_function(x=9, t=2)) for i in range(self.env.customers_per_round + 1)], label='prediction')
+            ax3.plot(np.arange(self.env.customers_per_round + 1) + 0.5, [self.env.get_event_p([i, self.env.customers_per_round - i], 9, [2]) for i in range(self.env.customers_per_round + 1)], label='actual')
+            ax3.plot(np.arange(self.env.customers_per_round + 1) + 0.5, [poisson.pmf([i, self.env.customers_per_round - i], mu=estimated_function(x=9, t=2)) for i in range(self.env.customers_per_round + 1)], label='prediction')
             ax3.set_title("price=9, t=2")
             plt.legend()
             plt.savefig(f"{self.save_plot_dir}/comparison_{self.n}")

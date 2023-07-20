@@ -16,7 +16,7 @@ class DuopolyEnvironment(gym.Env):
     def __init__(self, continuous_action_space = True):
 
         # Action Space
-        self.max_price = 20
+        self.max_price = 5
         self.step_size = 1
         self.continuous_action_space = continuous_action_space
         
@@ -24,21 +24,21 @@ class DuopolyEnvironment(gym.Env):
         self.action_space_max = int(self.max_price / self.step_size)
 
         # Observation Space
-        self.booking_time = 20
-        self.flight_capacity = 100
+        self.booking_time = 5
+        self.flight_capacity = 5
         # we cannot take our own price as a value of the state space, right?
-        self.observation_space = MultiDiscrete([self.booking_time + 1, self.flight_capacity + 1, self.flight_capacity + 1, self.action_space_max])
+        self.observation_space = MultiDiscrete([self.booking_time + 1, self.flight_capacity + 1, self.flight_capacity + 1, self.action_space_max + 1])
 
 
         # Event Space
         self.customers = Customers(['family'], self.max_price, self.booking_time)
-        self.customers_per_round = 20
-        self.event_space = Discrete(self.customers_per_round + 1)
+        self.customers_per_round = 5
+        self.event_space = MultiDiscrete([self.customers_per_round + 1, self.customers_per_round + 1, self.customers_per_round + 1])
 
         self.stochastic_customers = True
         self.edgeworth = False
 
-        self.initial_state = [0, self.flight_capacity, self.flight_capacity,  self.action_space_max / 2]
+        self.initial_state = [0, self.flight_capacity, self.flight_capacity,  int(self.action_space_max / 2)]
 
         self.reset()
 
@@ -86,7 +86,7 @@ class DuopolyEnvironment(gym.Env):
     
 
     def transit_state(self, i, a, s):
-        comp_price = a - 1 if a > 5 else 19
+        comp_price = a - 1 if a > 2 else 4
         return [s[0] + 1, max(0, s[1] - i[0]), max(0, s[2] - i[1]), comp_price]
     
 
