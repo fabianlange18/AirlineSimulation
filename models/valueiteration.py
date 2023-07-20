@@ -25,13 +25,13 @@ class ValueIteration(Solver):
                 action_values = (
                     (a,
                      sum((
-                         self.env.get_event_p([i, self.env.sample_event([a, a_comp], s)[1]], [a, a_comp], s) * (
-                                 self.env.get_reward([i, self.env.sample_event([a, a_comp], s)[1]], [a, a_comp], s)[
-                                     0] + self.gamma *
-                                 (self.value[*self.env.transit_state([i, self.env.sample_event([a, a_comp], s)[1]],
-                                                                     [int(self.policy[*s]), a_comp], s)] if s[
-                                                                                                           0] < self.env.booking_time - 1 else 0)
-                         )
+                         self.env.get_event_p([i, self.env.sample_event([a, a_comp], s)[1]], [a, a_comp], s) *
+                         (self.env.get_reward([i, self.env.sample_event([a, a_comp], s)[1]], [a, a_comp], s)[
+                              0] + self.gamma *
+                          (self.value[*self.env.transit_state([i, self.env.sample_event([a, a_comp], s)[1]],
+                                                              [int(self.policy[*s]), a_comp], s)] if s[
+                                                                                                         0] < self.env.booking_time - 1 else 0)
+                          )
                          for i in range(self.env.customers_per_round)
                      )))
                     for a in range(self.env.action_space_max)

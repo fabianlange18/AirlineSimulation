@@ -14,11 +14,13 @@ class Solver(object):
         self.reset()
 
     def reset(self):
-        self.value = np.zeros(self.env.observation_space.nvec)
+        #self.value = np.zeros(self.env.observation_space.nvec)
+        self.value = np.zeros((self.env.booking_time, self.env.flight_capacity))
+        self.policy = np.zeros((self.env.booking_time, self.env.flight_capacity))
         # Zero Starting Policy
-        self.policy = np.zeros(self.env.observation_space.nvec)
+        #self.policy = np.zeros(self.env.observation_space.nvec)
         # Random Starting Policy
-        # self.policy = np.random.choice(np.arange(int(self.env.action_space_max)), size=self.env.observation_space.nvec)
+        #self.policy = np.random.choice(np.arange(int(self.env.action_space_max)), size=self.env.observation_space.nvec)
 
     def solve(self, *args, **kwargs):
         raise NotImplementedError()

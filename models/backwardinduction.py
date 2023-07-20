@@ -7,38 +7,26 @@ class BackwardInduction(Solver):
     def comp_expected_reward(self, t, future):
         r = np.zeros((self.env.flight_capacity,))
         a = np.zeros((self.env.flight_capacity,))
-        a_comp = self.env.rule_based_competitor()
-        for s in range(self.env.flight_capacity):
-            #change state here
-            s = np.array([t, s, s])
-            print(s)
-            # sample event okay here?
-            """a_max = max((
-                (action, sum(
-                    self.env.get_event_p([i, self.env.sample_event([action, a_comp], s)[1]], [action, a_comp], s) * (self.env.get_reward([i, self.env.sample_event([action, a_comp], s)[1]], [action, a_comp], s)[0] + future[self.env.transit_state([i, self.env.sample_event([action, a_comp], s)[1]], [action, a_comp], s)[1]])
-                    for i in range(self.env.customers_per_round)
-                ))
-                for action in range(self.env.action_space_max)
-            ), key=lambda o: o[1])"""
-            a_max = max((
-                (a, sum(
-                    self.env.get_event_p([i, self.env.sample_event([a, a_comp], s)[1]], [a, a_comp], s) * (
-                                self.env.get_reward([i, self.env.sample_event([a, a_comp], s)[1]], [a, a_comp], s)[0] +
-                                future[
-                                    self.env.transit_state([i, self.env.sample_event([a, a_comp], s)[1]], [a, a_comp],
-                                                           s)[1]])
-                    for i in range(self.env.customers_per_round)
-                ))
-                for a in range(self.env.action_space_max)
-            ), key=lambda o: o[1])
-            print(a_max)
-            for a in range(self.env.action_space_max):
-                for i in range(self.env.customers_per_round):
-                    print("event prob ", self.env.get_event_p([i, self.env.sample_event([a, a_comp], s)[1]], [a, a_comp], s))
-                    print("reward ", self.env.get_reward([i, self.env.sample_event([a, a_comp], s)[1]], [a, a_comp], s)[0])
-                    print("transit ", self.env.transit_state([i, self.env.sample_event([a, a_comp], s)[1]], [a, a_comp], s)[1])
-            r[s[1]] = a_max[1]
-            a[s[1]] = a_max[0]
+        for f_1 in range(self.env.flight_capacity):
+            for f_2 in range(self.env.flight_capacity):
+                #change state here
+                s = np.array([t, f_1, f_2])
+                #print("state in bi: ", s)
+                a_comp = self.env.rule_based_competitor(s)
+                a_max = max((
+                    (a, sum(
+                        self.env.get_event_p_player(i, [a, a_comp], s) * (
+                                    self.env.get_reward([i, self.env.sample_event([a, a_comp], s)[1]], [a, a_comp], s)[0] +
+                                    future[
+                                        self.env.transit_state([i, self.env.sample_event([a, a_comp], s)[1]], [a, a_comp],
+                                                               s)[1]])
+                        for i in range(self.env.customers_per_round)
+                    ))
+                    for a in range(self.env.action_space_max)
+                ), key=lambda o: o[1])
+                print(a_max)
+                r[s[1]] = a_max[1]
+                a[s[1]] = a_max[0]
         return r, a
 
     def solve(self):

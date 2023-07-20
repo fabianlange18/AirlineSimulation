@@ -20,8 +20,12 @@ def plot_colormap(actual, compare_value, model_name, episodes, title, print_labe
     plt.close()
 
 def plot_policy(actual, model_name, episodes, title, print_labels = True):
+    #print("act shape",actual.shape)
+    #red_actual = actual[:,:,0,0,0]
+    #print("red act shape",red_actual.shape)
     diff = np.abs(actual - np.zeros_like(actual))
     plt.imshow(actual, cm.get_cmap('RdBu').reversed())
+    #plt.imshow(actual, cmap='RdBu_r')
     plt.colorbar()
 
     if print_labels:

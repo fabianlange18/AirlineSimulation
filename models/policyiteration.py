@@ -14,6 +14,7 @@ class PolicyIteration(Solver):
             instable = self.impr_policy()
 
     def impr_policy(self):
+        #assert "impr pol called"
         p_instable = False
         for s in self.possible_states_array:
             a = self.policy[*s]
@@ -21,9 +22,9 @@ class PolicyIteration(Solver):
             action_values = [
                 (a,
                  sum((
-                     self.env.get_event_p([i, 0], [a, 19], s) *
-                     (self.env.get_reward([i, 0], [a, 19], s)[0] + self.gamma *
-                      (self.value[*self.env.transit_state([i, 0], [int(self.policy[*s]), 19], s)] if s[
+                     self.env.get_event_p([i, self.env.sample_event([a, a_comp], s)[1]], [a, a_comp], s) *
+                     (self.env.get_reward([i, self.env.sample_event([a, a_comp], s)[1]], [a, a_comp], s)[0] + self.gamma *
+                      (self.value[*self.env.transit_state([i, self.env.sample_event([a, a_comp], s)[1]], [int(self.policy[*s]), a_comp], s)] if s[
                                                                                          0] < self.env.booking_time - 1 else 0)
                       )
                      for i in range(self.env.customers_per_round)
@@ -41,16 +42,16 @@ class PolicyIteration(Solver):
         while delta >= self.max_delta:
             delta = 0
             for s in self.possible_states_array:
+                #print("pol it state is ", s)
                 v = self.value[*s]
                 a_comp = self.env.rule_based_competitor(s)
                 self.value[*s] = sum((
-                    self.env.get_event_p([i, 0], [self.policy[*s], 19], s) * (
-                                self.env.get_reward([i, 0], [self.policy[*s], 19], s)[0] + self.gamma *
-                                (self.value[*self.env.transit_state([i, 0], [int(self.policy[*s]), 19], s)] if s[
+                    self.env.get_event_p([i, self.env.sample_event([self.policy[*s], a_comp], s)[1]], [self.policy[*s], a_comp], s) * (
+                                self.env.get_reward([i, self.env.sample_event([self.policy[*s], a_comp], s)[1]], [self.policy[*s], a_comp], s)[0] + self.gamma *
+                                (self.value[*self.env.transit_state([i, self.env.sample_event([self.policy[*s], a_comp], s)[1]], [int(self.policy[*s]), a_comp], s)] if s[
                                                                                                    0] < self.env.booking_time - 1 else 0)
                                 )
                     for i in range(self.env.customers_per_round)
                 ))
                 print("value is ", self.value[*s])
                 delta = max(delta, abs(v - self.value[*s]))
-                #print(delta)

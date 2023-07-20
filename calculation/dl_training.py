@@ -30,7 +30,7 @@ def dl_training(model_name, env, episodes, wandb = False, compare_policy = None,
         policy[*state] = model.predict(state, deterministic=True)[0]
 
     if compare_policy is not None:
-        plot_colormap(policy, compare_policy, model_name, episodes, title='Policy')
+        plot_colormap(policy, compare_policy[:, :, 0,0,0], model_name, episodes, title='Policy')
 
     reward = simulation_run_duopoly(policy, model_name, episodes)[0]
 

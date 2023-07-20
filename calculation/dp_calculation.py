@@ -7,19 +7,19 @@ from simulation import simulation_run_monopoly
 
 from util.colormap import plot_policy
 
-timeout = 1000
+timeout = 10000
 
 def timeout_handler(signum, frame):
     raise TimeoutError(f"Function takes longer than {timeout} seconds.")
 
 
 def calculate_perfect_policy(env, print_policy=True):
-    #bi = choose_model('bi', env)
-    pi = choose_model('pi', env)
+    bi = choose_model('bi', env)
+    #pi = choose_model('pi', env)
     #vi = choose_model('vi', env)
 
-    #bi_solved = calculation_time_track(bi, "Backward Induction")
-    pi_solved = calculation_time_track(pi, "Policy Iteration")
+    bi_solved = calculation_time_track(bi, "Backward Induction")
+    #pi_solved = calculation_time_track(pi, "Policy Iteration")
     #vi_solved = calculation_time_track(vi, "Value Iteration")
 
     """if bi_solved and pi_solved:
@@ -29,11 +29,15 @@ def calculate_perfect_policy(env, print_policy=True):
     if pi_solved and vi_solved:
         assert(np.all(pi.policy == vi.policy))"""
 
-    if pi_solved:
+    if bi_solved:
         print("Optimal Policy calculated by Dynamic Programming:")
-        perfect_policy = pi.policy
+        #perfect_policy = bi.policy[:,:,0,0,0]
+        perfect_policy = bi.policy
+        print("perfect pol shape", perfect_policy.shape)
+        print(perfect_policy)
         # if bi_solved else pi.policy if pi_solved else vi.policy
-        perfect_value = pi.value
+        #perfect_value = bi.value[:,:,0,0,0]
+        perfect_value = bi.value
         # if bi_solved else pi.value if pi_solved else vi.value
         plot_policy(perfect_policy, '0_DP', 0, 'Optimal')
         if print_policy:

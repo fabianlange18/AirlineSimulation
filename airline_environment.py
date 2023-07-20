@@ -15,20 +15,20 @@ class AirlineEnvironment(gym.Env):
     def __init__(self, continuous_action_space=True) -> None:
 
         # Observation Space
-        self.booking_time = 10
-        self.flight_capacity = 12
+        self.booking_time = 11
+        self.flight_capacity = 6
         self.observation_space = MultiDiscrete([self.booking_time, self.flight_capacity])
 
         # Action Space
-        self.max_price = 20
-        self.step_size = 1  # only relevant in discrete case
+        self.max_price = 60
+        self.step_size = 10  # only relevant in discrete case
         self.continuous_action_space = continuous_action_space
         self.action_space = Box(low=0, high=self.max_price, shape=(1,)) if self.continuous_action_space else Discrete(
             int(self.max_price / self.step_size))
         self.action_space_max = int(self.max_price / self.step_size)
 
         # Event Space
-        self.customers_per_round = 10
+        self.customers_per_round = 2
         self.event_space = Discrete(self.customers_per_round)
 
         self.stochastic_customers = False
@@ -90,33 +90,80 @@ class AirlineDuopoly(AirlineEnvironment):
             [self.booking_time, self.flight_capacity, self.flight_capacity, self.max_price, self.max_price])
 
     def get_p_dist(self, a, timestep):
-        p_1 = (1 - self.transform_action(a[0]) / self.max_price) * (1 + timestep) / self.booking_time
-        p_2 = (1 - self.transform_action(a[1]) / self.max_price) * (1 + timestep) / self.booking_time
-        p_3 = 1 - p_1 - p_2
+        p_1 = a[1] / (a[0] + a[1])
+        p_2 = a[0] / (a[0] + a[1])
+        p_3 = 2 - p_1 - p_2
         p = softmax([p_1, p_2, p_3])
-        print("p dist ", p)
+        #print("action ", a)
+        #print("p dist ", p)
         return p
+
+    def get_event_p_player(self, i_player, a, s):
+        p = self.get_p_dist(a, s[0])[0]
+        if i_player == 0:
+            return 1 - p
+        else:
+            return p
+
+    def get_event_p_comp(self, i_comp, a, s):
+        p = self.get_p_dist(a, s[0])[1]
+        if i_comp == 0:
+            return 1 - p
+        else:
+            return p
+    
+    def sample_event(self, a, s):
+        p_player = int(self.get_event_p_player(1, a, s))
+        p_comp = int(self.get_event_p_player(1, a, s))
+
+        # similar offers
+        if p_player == p_comp == 1:
+            if np.random.random() > 0.5:
+                return [0, 1]
+            else:
+                return [1, 0]
+        # player sells
+        if p_player == 1 and p_comp == 0:
+            return [1, 0]
+        # comp sells
+        if p_player == 0 and p_comp == 1:
+            return [0, 1]
+        # no one sells
+        if p_player == p_comp == 0:
+            return [0, 0]
+
+    """
 
     def get_event_p(self, i, a, s):
         p_dist = self.get_p_dist(a, s[0])
-        print("event p ", multinomial.pmf([i[0], i[1], self.customers_per_round - i[0] - i[1]], self.customers_per_round, p_dist))
+        #print("i_p ", i)
+        #print("event p ", multinomial.pmf([i[0], i[1], self.customers_per_round - i[0] - i[1]], self.customers_per_round, p_dist))
         return multinomial.pmf([i[0], i[1], self.customers_per_round - i[0] - i[1]], self.customers_per_round, p_dist)
+
 
     def sample_event(self, a, s):
         p_dist = self.get_p_dist(a, s[0])
         if self.stochastic_customers:
             return np.random.multinomial(self.customers_per_round, p_dist)[0:2]
         else:
+            #print("sampled event ", np.asarray(np.multiply(p_dist, self.customers_per_round)[0:2], dtype=int))
             return np.asarray(np.multiply(p_dist, self.customers_per_round)[0:2], dtype=int)
 
+"""
+
     def get_reward(self, i, a, s):
-        reward_1 = super().get_reward(i[0], a[0], s)
-        reward_2 = super().get_reward(i[1], a[1], s)
-        print("rewards ", [reward_1, reward_2])
+        reward_1 = a[0] * min(i[0], s[1])
+        reward_2 = a[1] * min(i[1], s[2])
+        #print("rew events", i)
+        #print("rew actions ", a)
+        #print("rewards ", [reward_1, reward_2])
         return [reward_1, reward_2]
 
     def transit_state(self, i, a, s):
-        print("next state is ", [s[0] + 1, max(0, s[1] - i[0]), max(0, s[2] - i[1]), a[0], a[1]])
+        #print("state last state ",s)
+        #print("state events ", i)
+        #print("state actions ", a)
+        #print("next state is ", [s[0] + 1, max(0, s[1] - i[0]), max(0, s[2] - i[1]), a[0], a[1]])
         return [s[0] + 1, max(0, s[1] - i[0]), max(0, s[2] - i[1]), a[0], a[1]]
 
     def step(self, a_player):
@@ -129,11 +176,8 @@ class AirlineDuopoly(AirlineEnvironment):
         return self.s, rewards[0], self.s[0] == self.booking_time - 1, output_dict
 
     def rule_based_competitor(self, s):
-        if s[0] < 6:
-            a = 16
-        elif s[0] > 6 and self.s[0] > 8:
-            a = 15
+        if s[2] > 0:
+            a = 20
         else:
-            a = 13
-
+            a = 50
         return a
