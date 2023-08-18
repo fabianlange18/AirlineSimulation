@@ -1,4 +1,5 @@
 from airline_environment import AirlineEnvironment
+# from duopoly_environment import DuopolyEnvironment as AirlineEnvironment
 from models.estimator import Estimator
 
 from calculation.dp_calculation import calculate_perfect_policy
@@ -7,6 +8,7 @@ from calculation.dl_training import dl_training
 
 from util.calculate_init_value import InitialValueCalculator
 
+import csv
 import numpy as np
 import matplotlib.pyplot as plt
 
@@ -22,7 +24,6 @@ perfect_policy, perfect_value, perfect_reward = calculate_perfect_policy(discret
 assert abs(perfect_value[*discrete_env.initial_state] - init_value_calculator.calculate_initial_value(perfect_policy)) < 0.1
 
 models_array = ['dp_est', 'adp', 'adp_est', 'ql', 'ddpg', 'sac', 'ppo']
-# models_array = ['adp', 'ql', 'dqn', 'ddpg', 'td3', 'a2c', 'sac', 'ppo']
 episodes_array = [1, 10, 50, 100]
 
 results = {model: {'r_means': [], 'r_std': [], 'v_means': [], 'v_std': []} for model in models_array}
@@ -64,6 +65,17 @@ for episodes in episodes_array:
         results[model_name]['r_std'].append(np.std(intermediate_results[model_name]['r']))
         results[model_name]['v_means'].append(np.mean(intermediate_results[model_name]['v']))
         results[model_name]['v_std'].append(np.std(intermediate_results[model_name]['v']))
+
+
+# CSV Datei Results
+fields = ['model', 'r_means', 'r_std', 'v_means', 'v_std']
+with open('./plots/results.txt', 'a') as f:
+    w = csv.DictWriter(f, fields)
+    w.writeheader()
+    for key,val in sorted(results.items()):
+        row = {'model': key}
+        row.update(val)
+        w.writerow(row)
 
 
 n = len(episodes_array)
