@@ -23,8 +23,8 @@ init_value_calculator = InitialValueCalculator(discrete_env)
 perfect_policy, perfect_value, perfect_reward = calculate_perfect_policy(discrete_env)
 assert abs(perfect_value[*discrete_env.initial_state] - init_value_calculator.calculate_initial_value(perfect_policy)) < 0.1
 
-models_array = ['dp_est', 'adp', 'adp_est', 'ql', 'ddpg', 'sac', 'ppo']
-episodes_array = [1, 10, 50, 100]
+models_array = ['dp_est', 'adp', 'adp_est', 'ql', 'dqn', 'ddpg', 'td3', 'a2c', 'sac', 'ppo']
+episodes_array = [1, 10, 100, 1000]
 
 results = {model: {'r_means': [], 'r_std': [], 'v_means': [], 'v_std': []} for model in models_array}
 

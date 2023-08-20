@@ -28,7 +28,7 @@ def adp_ql_calculation(model_name, env, episodes, estimator=None, compare_policy
 
     rewards = []
     
-    for _ in range(100):
+    for _ in range(10):
         rewards.append(simulation_run(model.policy, model_name, episodes))
     
     reward = np.mean(rewards)

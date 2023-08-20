@@ -15,12 +15,12 @@ class AirlineEnvironment(gym.Env):
     def __init__(self, continuous_action_space = True):
 
         # Observation Space
-        self.booking_time = 50
-        self.flight_capacity = 50
+        self.booking_time = 20
+        self.flight_capacity = 20
         self.observation_space = MultiDiscrete([self.booking_time + 1, self.flight_capacity + 1])
 
         # Action Space
-        self.max_price = 50
+        self.max_price = 20
         self.step_size = 1
         self.continuous_action_space = continuous_action_space
 
