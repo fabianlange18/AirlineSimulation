@@ -18,8 +18,8 @@ class DuopolyEnvironment(gym.Env):
     def __init__(self, continuous_action_space=True):
 
         # Action Space
-        self.max_price = 50
-        self.step_size = 10
+        self.max_price = 5
+        self.step_size = 1
         self.continuous_action_space = continuous_action_space
 
         self.action_space_max = int(self.max_price / self.step_size)
@@ -27,19 +27,19 @@ class DuopolyEnvironment(gym.Env):
                                 shape=(1,)) if self.continuous_action_space else Discrete(self.action_space_max + 1)
 
         # Observation Space
-        self.booking_time = 10
+        self.booking_time = 5
         self.flight_capacity = 5
         # we cannot take our own price as a value of the state space, right?
         self.observation_space = MultiDiscrete(
             [self.booking_time + 1, self.flight_capacity + 1, self.flight_capacity + 1, self.action_space_max + 1])
 
         # Event Space
-        self.customers = Customers(['lecture'], self.max_price, self.booking_time)
-        self.customers_per_round = 1
+        self.customers = Customers(['rational', 'family', 'business', 'party', 'early_booking'], self.max_price, self.booking_time)
+        self.customers_per_round = 5
         self.event_space = MultiDiscrete(
             [self.customers_per_round + 1, self.customers_per_round + 1, self.customers_per_round + 1])
 
-        self.stochastic_customers = True
+        self.stochastic_customers = False
         self.edgeworth = False
 
         self.competitor = Competitor(self.max_price, self.step_size, self.booking_time)
@@ -88,7 +88,7 @@ class DuopolyEnvironment(gym.Env):
 
     def transit_state(self, i, a, s):
         comp_price = self.competitor_reaction(a, s)
-        return [s[0] + 1, max(0, s[1] - i[0]), max(0, s[2] - i[1]), comp_price]
+        return [s[0] + 1, max(0, s[1] - i[0]), max(0, s[2] - i[1]), int(comp_price)]
 
     def step(self, a):
         a = int(a[0]) if isinstance(a, np.ndarray) else int(a)

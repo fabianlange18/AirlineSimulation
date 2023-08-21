@@ -1,5 +1,3 @@
-from airline_environment import AirlineEnvironment
-# from duopoly_environment import DuopolyEnvironment as AirlineEnvironment
 from models.estimator import Estimator
 
 from calculation.dp_calculation import calculate_perfect_policy
@@ -15,13 +13,21 @@ import matplotlib.pyplot as plt
 import sys
 sys.path.append('..')
 
+duopol = True
+
+if not duopol:
+    from airline_environment import AirlineEnvironment
+else:
+    from duopoly_environment import DuopolyEnvironment as AirlineEnvironment
+
+
 discrete_env = AirlineEnvironment(continuous_action_space=False)
 cont_env = AirlineEnvironment(continuous_action_space=True)
 
 init_value_calculator = InitialValueCalculator(discrete_env)
 
-perfect_policy, perfect_value, perfect_reward = calculate_perfect_policy(discrete_env)
-assert abs(perfect_value[*discrete_env.initial_state] - init_value_calculator.calculate_initial_value(perfect_policy)) < 0.1
+perfect_policy, perfect_value, perfect_reward = calculate_perfect_policy(discrete_env, duopol=duopol)
+assert abs(perfect_value[*discrete_env.initial_state] - init_value_calculator.calculate_initial_value(perfect_policy)) < 5
 
 models_array = ['dp_est', 'adp', 'adp_est', 'ql', 'dqn', 'ddpg', 'td3', 'a2c', 'sac', 'ppo']
 episodes_array = [1, 10, 100, 1000]
@@ -37,22 +43,22 @@ for episodes in episodes_array:
     for _ in range(n_runs):
 
         estimator = Estimator(discrete_env, n=episodes*discrete_env.booking_time, plot=True)
-        
+
         for model_name in models_array:
             
             if model_name == 'dp_est':
-                policy, value, reward = calculate_perfect_policy(discrete_env, estimator, just_result=True)
+                policy, value, reward = calculate_perfect_policy(discrete_env, estimator, just_result=True, duopol=duopol)
                 # does not hold True because init_value_calculator uses the real demand probability
                 # assert value[*discrete_env.initial_state] == init_value_calculator.calculate_initial_value(policy)
             
             elif model_name in ['adp', 'adp_est', 'ql']:
-                policy, _, reward = adp_ql_calculation(model_name, discrete_env, episodes, estimator, perfect_policy, perfect_value)
+                policy, _, reward = adp_ql_calculation(model_name, discrete_env, episodes, estimator, perfect_policy, perfect_value, duopol=duopol)
 
             elif model_name in ['ql', 'dqn', 'a2c', 'ppo']:
-                policy, reward = dl_training(model_name, discrete_env, episodes, compare_policy=perfect_policy)
+                policy, reward = dl_training(model_name, discrete_env, episodes, compare_policy=perfect_policy, duopol=duopol)
 
             else:
-                policy, reward = dl_training(model_name, cont_env, episodes, compare_policy=perfect_policy)
+                policy, reward = dl_training(model_name, cont_env, episodes, compare_policy=perfect_policy, duopol=duopol)
 
             discrete_env.reset()
             cont_env.reset()

@@ -9,13 +9,17 @@ from sklearn.linear_model import Lasso
 from sklearn.metrics import mean_squared_error, r2_score
 from sklearn.model_selection import train_test_split
 
-
+from duopoly_environment import DuopolyEnvironment
 class Estimator():
 
     def __init__(self, env, n, plot = False) -> None:
         self.n = n
         self.save_plot_dir = './plots/estimations/' if plot else None
         self.env = env
+        if isinstance(self.env, DuopolyEnvironment):
+            self.duopol = True
+        else:
+            self.duopol = False
         self.estimate_function, self.mse = self.estimate_function()
 
 
@@ -29,12 +33,19 @@ class Estimator():
             a = self.env.random_action()
             
             trajectories['s0'].append(s[0])
+            trajectories['s3'].append(s[3]) # comp price
             trajectories['a'].append(a)
             
             s, r, done, info = self.env.step(a)
 
-            trajectories['i'].append(info['i'])
             trajectories['r'].append(r)
+
+            if self.duopol:
+                trajectories['i'].append(info['i'][1])
+                trajectories['i_comp'].append(info['i'][2])
+            else:
+                trajectories['i'].append(info['i'])
+
 
             if done:
                 self.env.reset()
@@ -50,16 +61,53 @@ class Estimator():
         # Features
         t = np.array(trajectories['s0'])
         x = np.array(trajectories['a'])
+
         t_square = np.power(t, 2)
         x_square = np.power(x, 2)
+
         t_root_1 = np.sqrt(t+1)
         x_root_1 = np.sqrt(x+1)
+
         t_log_1 = np.log(t+1)
         x_log_1 = np.log(x+1)
+        
         t_x = t * x
 
-        # Stack Features
-        X = np.column_stack((t, x, t_square, x_square, t_root_1, x_root_1, t_log_1, x_log_1, t_x))
+        X = np.column_stack((
+            t, x,
+            t_square, x_square,
+            t_root_1, x_root_1,
+            t_log_1, x_log_1,
+            t_x))
+
+        if self.duopol:
+            a_comp = np.array(trajectories['s3'])
+            i_comp = np.array(trajectories['i_comp'])
+
+            a_square = np.power(a_comp, 2)
+            i_square = np.power(i_comp, 2)
+
+            a_root_1 = np.sqrt(a_comp+1)
+            i_root_1 = np.sqrt(i_comp+1)
+
+            a_log_1 = np.log(a_comp+1)
+            i_log_1 = np.log(i_comp+1)
+
+            t_a = t * a_comp
+            t_i = t * i_comp
+            x_a = x * a_comp
+            x_i = x * i_comp
+            a_i = a_comp * i_comp
+        
+            X = np.column_stack((
+                t, x, a_comp, i_comp,
+                t_square, x_square, a_square, i_square,
+                t_root_1, x_root_1, a_root_1, i_root_1,
+                t_log_1, x_log_1, a_log_1, i_log_1,
+                t_x, t_a, t_i, x_a, x_i, a_i))
+            
+
+        
         Y = np.array(trajectories['i'])
 
         # Split Test/Train
@@ -73,12 +121,25 @@ class Estimator():
         mse = mean_squared_error(Y_test, Y_pred)
         r2 = r2_score(Y_test, Y_pred)
 
-        def estimated_function(x, t):
-            coef = regression.coef_
-            intercept = regression.intercept_
-            return coef[0] * t + coef[1] * x + coef[2] * np.power(t, 2) + coef[3] * np.power(x, 2) + coef[4] * np.sqrt(t+1) + coef[5] * np.sqrt(x+1) + coef[6] * np.log(t+1) + coef[7] * np.log(x+1) + coef[8] * x * t + intercept
 
-        if self.save_plot_dir:
+        if self.duopol:
+            def estimated_function(x, t, a_c, i_c):
+                coef = regression.coef_
+                intercept = regression.intercept_
+                return coef[0] * t + coef[1] * x + coef[2] * a_c + coef[3] * i_c + coef[4] * np.power(t, 2) + coef[5] * np.power(x, 2) + coef[6] * np.power(a_c, 2) + coef[7] * np.power(i_c, 2) + coef[8] * np.sqrt(t+1) + coef[9] *  np.sqrt(x+1) + coef[10] * np.sqrt(a_c+1) + coef[11] * np.sqrt(i_c+1) + coef[12] * np.log(t+1) + coef[13] *  np.log(x+1) + coef[14] * np.log(a_c+1) + coef[15] * np.log(i_c+1) + coef[16] * t * x + coef[17] * t * a_c + coef[18] * t * i_c + coef[19] * x * a_c + coef[20] * x * i_c + coef[21] * a_c * i_c + intercept
+        else:
+            def estimated_function(x, t):
+                coef = regression.coef_
+                intercept = regression.intercept_
+                return coef[0] * t + coef[1] * x + coef[2] * np.power(t, 2) + coef[3] * np.power(x, 2) + coef[4] * np.sqrt(t+1) + coef[5] * np.sqrt(x+1) + coef[6] * np.log(t+1) + coef[7] * np.log(x+1) + coef[8] * x * t + intercept
+
+        print(regression.coef_)
+        print(regression.intercept_)
+        print(mse)
+        print(r2)
+
+        
+        if self.save_plot_dir and not self.duopol:
 
             f = open(f'{self.save_plot_dir}/summary.txt', 'a')
             f.write(f"Regression for {self.n} data points:\n")

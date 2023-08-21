@@ -4,7 +4,7 @@ from simulation import simulation_run
 
 import numpy as np
 
-def adp_ql_calculation(model_name, env, episodes, estimator=None, compare_policy = None, compare_value = None, print_policy = False):
+def adp_ql_calculation(model_name, env, episodes, estimator=None, compare_policy = None, compare_value = None, print_policy = False, duopol = False):
 
     steps = env.booking_time * episodes
 
@@ -16,10 +16,10 @@ def adp_ql_calculation(model_name, env, episodes, estimator=None, compare_policy
     model.solve(steps)
 
 
-    if compare_policy is not None:
+    if compare_policy is not None and not duopol:
         plot_colormap(model.policy, compare_policy, model_name, episodes, title='Policy')
     
-    if compare_value is not None:
+    if compare_value is not None and not duopol:
         plot_colormap(model.value, compare_value, model_name, episodes, title='Values')
     
     if print_policy:
@@ -29,7 +29,7 @@ def adp_ql_calculation(model_name, env, episodes, estimator=None, compare_policy
     rewards = []
     
     for _ in range(10):
-        rewards.append(simulation_run(model.policy, model_name, episodes))
+        rewards.append(simulation_run(model.policy, duopol, model_name, episodes))
     
     reward = np.mean(rewards)
 

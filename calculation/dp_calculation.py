@@ -13,12 +13,12 @@ def timeout_handler(signum, frame):
     raise TimeoutError(f"Function takes longer than {timeout} seconds.")
 
 
-def calculate_perfect_policy(env, estimator = None, print_policy = False, just_result=False):
+def calculate_perfect_policy(env, estimator = None, print_policy = False, just_result=False, duopol=False):
 
     if just_result:
         bi = choose_model('bi_est', env, estimator) if estimator else choose_model('bi', env)
         bi_solved = calculation_time_track(bi, "Backward Induction")
-        perfect_reward = simulation_run(bi.policy, plot=False)
+        perfect_reward = simulation_run(bi.policy, duopol, plot=False)
         return bi.policy, bi.value, perfect_reward
 
     if estimator:
@@ -45,17 +45,18 @@ def calculate_perfect_policy(env, estimator = None, print_policy = False, just_r
     if bi_solved or pi_solved or vi_solved:
         perfect_policy = bi.policy if bi_solved else pi.policy if pi_solved else vi.policy
         perfect_value = bi.value if bi_solved else pi.value if pi_solved else vi.value
-        plot_policy(perfect_policy, '0_DP', 0, 'Optimal')
+        if not duopol:
+            plot_policy(perfect_policy, '0_DP', 0, 'Optimal')
         if print_policy:
             print("Perfect policy calculated by Dynamic Programming")
             print(perfect_policy)
         if env.stochastic_customers:
             perfect_rewards = []
             for _ in range(100):
-                perfect_rewards.append(simulation_run(perfect_policy, '0_DP_Optimal', '0'))
+                perfect_rewards.append(simulation_run(perfect_policy, duopol, '0_DP_Optimal', '0'))
             perfect_reward = np.mean(perfect_rewards)
         else:
-            perfect_reward = simulation_run(perfect_policy, '0_DP_Optimal', '0')
+            perfect_reward = simulation_run(perfect_policy, duopol, '0_DP_Optimal', '0')
 
         return perfect_policy, perfect_value, perfect_reward
     

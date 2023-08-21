@@ -5,7 +5,7 @@ from util.colormap import plot_colormap
 from util.possible_states import setup_possible_states_array
 from simulation import simulation_run
 
-def dl_training(model_name, env, episodes, wandb = False, compare_policy = None, print_policy = False):
+def dl_training(model_name, env, episodes, wandb = False, compare_policy = None, print_policy = False, duopol = False):
 
     steps = env.booking_time * episodes
 
@@ -29,13 +29,13 @@ def dl_training(model_name, env, episodes, wandb = False, compare_policy = None,
     for state in possible_states:
         policy[*state] = int(model.predict(state, deterministic=True)[0])
 
-    if compare_policy is not None:
+    if compare_policy is not None and not duopol:
         plot_colormap(policy, compare_policy, model_name, episodes, title='Policy')
 
     rewards = []
     
     for _ in range(100):
-        rewards.append(simulation_run(policy, model_name, episodes))
+        rewards.append(simulation_run(policy, duopol, model_name, episodes))
     
     reward = np.mean(rewards)
 

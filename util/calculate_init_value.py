@@ -14,7 +14,7 @@ class InitialValueCalculator(Solver):
             for s in self.possible_states_array:
                 v = self.value[*s]
                 self.value[*s] = sum((
-                    self.env.get_event_p(i, policy[*s], s) * (self.env.get_reward(i, policy[*s], s) + self.gamma * 
+                    self.event_p(i, policy[*s], s) * (self.env.get_reward(i, policy[*s], s) + self.gamma * 
                                                                    ( self.value[*self.env.transit_state(i, policy[*s], s)] if s[0] < self.env.booking_time - 1 else 0)
                                                                    )
                     for i in self.possible_events_array
