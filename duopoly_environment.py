@@ -42,7 +42,7 @@ class DuopolyEnvironment(gym.Env):
         self.stochastic_customers = False
         self.edgeworth = False
 
-        self.competitor = Competitor(self.max_price, self.step_size, self.booking_time)
+        self.competitor = Competitor(self.max_price, self.step_size, self.booking_time, self.flight_capacity)
 
         self.initial_state = [0, self.flight_capacity, self.flight_capacity, int(self.action_space_max / 2)]
 
@@ -105,7 +105,7 @@ class DuopolyEnvironment(gym.Env):
 
     def competitor_reaction(self, agent_price, state):
         # Insert different competitor strategies here
-        choice = 'early undercut'
+        choice = 'advanced undercut'
         time = state[0]
         own_capacity = state[2]
         fix_price = self.max_price

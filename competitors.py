@@ -3,11 +3,12 @@ import numpy as np
 
 class Competitor:
 
-    def __init__(self, max_price, step_size, booking_time):
+    def __init__(self, max_price, step_size, booking_time, flight_capacity):
 
         self.max_price = max_price
         self.step_size = step_size
         self.booking_time = booking_time
+        self.flight_capacity = flight_capacity
 
     # fix price
     def fix_price(self, fix_price: int):
@@ -31,6 +32,16 @@ class Competitor:
         else:
             return self.max_price
 
+
+    # undercutting strategy based on the ratio of time per seating capacity
+    def advanced_undercutting(self, agent_action):
+        co = self.booking_time / self.flight_capacity
+
+        if co < 1:
+            return self.undercutting(agent_action, self.max_price / 3)
+        else:
+            return self.undercutting(agent_action, self.max_price / 6)
+
     def play_action(self, choice, time, agent_action, comp_capacity, fix_price, barrier=0):
         if 'fix price' in choice:
             return self.fix_price(fix_price)
@@ -40,3 +51,5 @@ class Competitor:
             return self.storager(comp_capacity)
         if 'early undercut' in choice:
             return self.early_undercutting(agent_action, time)
+        if 'advanced undercut' in choice:
+            return self.advanced_undercutting(agent_action)
