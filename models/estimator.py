@@ -133,11 +133,6 @@ class Estimator():
                 intercept = regression.intercept_
                 return coef[0] * t + coef[1] * x + coef[2] * np.power(t, 2) + coef[3] * np.power(x, 2) + coef[4] * np.sqrt(t+1) + coef[5] * np.sqrt(x+1) + coef[6] * np.log(t+1) + coef[7] * np.log(x+1) + coef[8] * x * t + intercept
 
-        print(regression.coef_)
-        print(regression.intercept_)
-        print(mse)
-        print(r2)
-
         
         if self.save_plot_dir and not self.duopol:
 

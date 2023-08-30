@@ -53,7 +53,7 @@ def monopol_simulation(policy, model_name, episodes, plot):
     return np.sum(reward_trajectory)
 
 def duopol_simulation(policy, model_name, episodes, plot):
-    env = DuopolyEnvironment(continuous_action_space=False)
+    env = DuopolyEnvironment(continuous_action_space=False, stochastic_customers=False)
 
     state = env.s
 
@@ -91,7 +91,7 @@ def duopol_simulation(policy, model_name, episodes, plot):
         fig, (ax1, ax2, ax3, ax4) = plt.subplots(4, sharex=True)
 
         ax1.plot(own_price_trajectory)
-        ax1.plot(comp_price_trajectory)
+        ax1.plot(comp_price_trajectory[:-1])
         ax1.set_title("Prices")
         ax2.plot(own_state_trajectory)
         ax2.plot(comp_state_trajectory)
