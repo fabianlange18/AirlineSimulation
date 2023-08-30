@@ -133,18 +133,20 @@ class Estimator():
                 intercept = regression.intercept_
                 return coef[0] * t + coef[1] * x + coef[2] * np.power(t, 2) + coef[3] * np.power(x, 2) + coef[4] * np.sqrt(t+1) + coef[5] * np.sqrt(x+1) + coef[6] * np.log(t+1) + coef[7] * np.log(x+1) + coef[8] * x * t + intercept
 
-        
-        if self.save_plot_dir and not self.duopol:
+        if self.save_plot_dir:
 
-            f = open(f'{self.save_plot_dir}/summary.txt', 'a')
+            f = open(f'{self.save_plot_dir}/parameters.txt', 'a')
             f.write(f"Regression for {self.n} data points:\n")
-            f.write("Coefficients: t, x, t_square, x_square, t_root+1, x_root+1, t_log+1, x_log+1, t_x\n")
+            monopol_header = "Coefficients: t, x, t_square, x_square, t_root+1, x_root+1, t_log+1, x_log+1, t_x\n"
+            duopol_header = "Coefficients: t, x, a_comp, i_comp, t_square, x_square, a_square, i_square, t_root_1, x_root_1, a_root_1, i_root_1, t_log_1, x_log_1, a_log_1, i_log_1, t_x, t_a, t_i, x_a, x_i, a_i"
+            f.write(duopol_header if self.duopol else monopol_header)
             [f.write(f'{round(coef, 4)}  ') for coef in regression.coef_]
             f.write(f"\nIntercept: {regression.intercept_}\n")
             f.write(f"MSE: {mse}\n")
             f.write(f"R2: {r2}\n\n")
-            # f.write(f'{self.n}, {mse}\n')
             f.close()
+
+        if self.save_plot_dir and not self.duopol:
 
             x_scale = np.arange(self.env.max_price + 1)
             t_scale = np.arange(self.env.booking_time + 1)
