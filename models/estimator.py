@@ -33,7 +33,6 @@ class Estimator():
             a = self.env.random_action()
             
             trajectories['s0'].append(s[0])
-            trajectories['s3'].append(s[3]) # comp price
             trajectories['a'].append(a)
             
             s, r, done, info = self.env.step(a)
@@ -41,6 +40,7 @@ class Estimator():
             trajectories['r'].append(r)
 
             if self.duopol:
+                trajectories['s3'].append(s[3]) # comp price
                 trajectories['i'].append(info['i'][1])
                 trajectories['i_comp'].append(info['i'][2])
             else:

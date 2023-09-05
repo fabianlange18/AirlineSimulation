@@ -30,6 +30,7 @@ perfect_policy, perfect_value, perfect_reward = calculate_perfect_policy(discret
 assert abs(perfect_value[*discrete_env.initial_state] - init_value_calculator.calculate_initial_value(perfect_policy)) < 5
 
 models_array = ['dp_est', 'adp', 'adp_est', 'ql', 'dqn', 'ddpg', 'td3', 'a2c', 'sac', 'ppo']
+models_array = ['dp_est', 'adp_est', 'ddpg', 'td3', 'sac', 'ppo']
 episodes_array = [1, 10, 100, 1000]
 
 results = {model: {'r_means': [], 'r_std': [], 'v_means': [], 'v_std': []} for model in models_array}
@@ -73,15 +74,16 @@ for episodes in episodes_array:
         results[model_name]['v_std'].append(np.std(intermediate_results[model_name]['v']))
 
 
-# CSV Datei Results
-fields = ['model', 'r_means', 'r_std', 'v_means', 'v_std']
-with open('./plots/results.txt', 'a') as f:
-    w = csv.DictWriter(f, fields)
-    w.writeheader()
-    for key,val in sorted(results.items()):
-        row = {'model': key}
-        row.update(val)
-        w.writerow(row)
+    # CSV Datei Results
+    # fields = ['model', 'r_means', 'r_std', 'v_means', 'v_std']
+    with open('./plots/results.txt', 'a') as f:
+        f.write(results)
+        # w = csv.DictWriter(f, fields)
+        # w.writeheader()
+        # for key,val in sorted(results.items()):
+        #     row = {'model': key}
+        #     row.update(val)
+        #     w.writerow(row)
 
 
 n = len(episodes_array)

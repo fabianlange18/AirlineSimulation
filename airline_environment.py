@@ -32,7 +32,7 @@ class AirlineEnvironment(gym.Env):
         self.customers_per_round = 5
         self.event_space = MultiDiscrete([self.customers_per_round + 1, self.customers_per_round + 1])
 
-        self.stochastic_customers = False
+        self.stochastic_customers = True
 
         self.initial_state = [0, self.flight_capacity]
 
