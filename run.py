@@ -77,7 +77,7 @@ for episodes in episodes_array:
     # CSV Datei Results
     # fields = ['model', 'r_means', 'r_std', 'v_means', 'v_std']
     with open('./plots/results.txt', 'a') as f:
-        f.write(results)
+        f.write(str(results))
         # w = csv.DictWriter(f, fields)
         # w.writeheader()
         # for key,val in sorted(results.items()):
