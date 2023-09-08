@@ -13,7 +13,7 @@ import matplotlib.pyplot as plt
 import sys
 sys.path.append('..')
 
-duopol = True
+duopol = False
 
 if not duopol:
     from airline_environment import AirlineEnvironment
@@ -30,7 +30,7 @@ perfect_policy, perfect_value, perfect_reward = calculate_perfect_policy(discret
 assert abs(perfect_value[*discrete_env.initial_state] - init_value_calculator.calculate_initial_value(perfect_policy)) < 5
 
 models_array = ['dp_est', 'adp', 'adp_est', 'ql', 'dqn', 'ddpg', 'td3', 'a2c', 'sac', 'ppo']
-models_array = ['dp_est', 'adp_est', 'ddpg', 'td3', 'sac', 'ppo']
+# models_array = ['dp_est', 'adp_est', 'ddpg', 'td3', 'sac', 'ppo'] # duopol methods
 episodes_array = [1, 10, 100, 1000]
 
 results = {model: {'r_means': [], 'r_std': [], 'v_means': [], 'v_std': []} for model in models_array}
