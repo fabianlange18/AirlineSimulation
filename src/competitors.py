@@ -1,6 +1,3 @@
-import numpy as np
-
-
 class Competitor:
 
     def __init__(self, max_price, step_size, booking_time, flight_capacity):
@@ -34,8 +31,8 @@ class Competitor:
 
 
     # undercutting strategy based on the ratio of time per seating capacity
-    def advanced_undercutting(self, agent_action):
-        co = self.booking_time / self.flight_capacity
+    def advanced_undercutting(self, agent_action, time):
+        co = time / self.flight_capacity
 
         if co < 1:
             return self.undercutting(agent_action, self.max_price / 3)
@@ -52,4 +49,4 @@ class Competitor:
         if 'early undercut' in choice:
             return self.early_undercutting(agent_action, time)
         if 'advanced undercut' in choice:
-            return self.advanced_undercutting(agent_action)
+            return self.advanced_undercutting(agent_action, time)

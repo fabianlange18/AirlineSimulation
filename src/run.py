@@ -49,8 +49,6 @@ for episodes in episodes_array:
             
             if model_name == 'dp_est':
                 policy, value, reward = calculate_perfect_policy(discrete_env, estimator, just_result=True, duopol=duopol)
-                # does not hold True because init_value_calculator uses the real demand probability
-                # assert value[*discrete_env.initial_state] == init_value_calculator.calculate_initial_value(policy)
             
             elif model_name in ['adp', 'adp_est', 'ql']:
                 policy, _, reward = adp_ql_calculation(model_name, discrete_env, episodes, estimator, perfect_policy, perfect_value, duopol=duopol)

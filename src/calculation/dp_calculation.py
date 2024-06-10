@@ -64,15 +64,23 @@ def calculate_perfect_policy(env, estimator = None, print_policy = False, just_r
         AssertionError("No Dynamic Programming Method solved in time.")
 
 
-def calculation_time_track(model, name):
-    signal.signal(signal.SIGALRM, timeout_handler)
+def calculation_time_track(model, name, windows=True):
+    # Not working on Windows, use MacOs or set windows to True
+    
+    if not windows:
+        signal.signal(signal.SIGALRM, timeout_handler)
 
-    try:
-        signal.alarm(timeout)
-        model_time = timeit.timeit(model.solve, number=1)
-        signal.alarm(0)
-        print(f'{name} takes {round(model_time, 3)} seconds.')
+        try:
+            signal.alarm(timeout)
+            model_time = timeit.timeit(model.solve, number=1)
+            signal.alarm(0)
+            print(f'{name} takes {round(model_time, 3)} seconds.')
+            return True
+        except TimeoutError:
+            print(f'{name} takes longer than {timeout} seconds.')
+            return False
+        
+    else:
+        
+        model.solve()
         return True
-    except TimeoutError:
-        print(f'{name} takes longer than {timeout} seconds.')
-        return False

@@ -1,7 +1,4 @@
 import numpy as np
-import math
-
-
 class Customers:
 
     def __init__(self, customers: list, max_price, booking_time):

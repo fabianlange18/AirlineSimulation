@@ -18,7 +18,7 @@ class DuopolyEnvironment(gym.Env):
     def __init__(self, continuous_action_space=True, stochastic_customers=True):
 
         # Action Space
-        self.max_price = 10
+        self.max_price = 5
         self.step_size = 1
         self.continuous_action_space = continuous_action_space
 
@@ -27,9 +27,9 @@ class DuopolyEnvironment(gym.Env):
                                 shape=(1,)) if self.continuous_action_space else Discrete(self.action_space_max + 1)
 
         # Observation Space
-        self.booking_time = 10
-        self.flight_capacity = 10
-        # we cannot take our own price as a value of the state space, right?
+        self.booking_time = 5
+        self.flight_capacity = 5
+
         self.observation_space = MultiDiscrete(
             [self.booking_time + 1, self.flight_capacity + 1, self.flight_capacity + 1, self.action_space_max + 1])
 

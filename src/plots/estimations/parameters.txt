@@ -1,0 +1,7 @@
+Regression for 20 data points:
+Coefficients: t, x, t_square, x_square, t_root+1, x_root+1, t_log+1, x_log+1, t_x
+2.4795  4.8528  -0.0141  -0.0568  -21.92  -30.6604  12.0471  9.7571  0.008  
+Intercept: 55.85596421666286
+MSE: 0.45269348310247604
+R2: 0.3415367518509439
+

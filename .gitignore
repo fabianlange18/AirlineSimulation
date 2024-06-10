@@ -3,9 +3,6 @@ __pycache__
 
 wandb/
 logs/
-plots/
 
 .vscode/
 .DS_Store
-
-s41272-020-00228-4.pdf
