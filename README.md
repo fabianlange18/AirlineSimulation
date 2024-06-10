@@ -1,5 +1,5 @@
 # AirlineSimulation
-A repository for our project Airline Simulation as part of the course "Dynamic Programming and Reinforcement Learning" at Hasso-Plattner-Institute
+A repository for the paper "Reinforcement Learning vs. Dynamic Programming on Digital Twins: A Comparison Study for Dynamic Pricing Markets"
 
 1. Ensure to install all the requirements from ``requirements.txt``.
 
